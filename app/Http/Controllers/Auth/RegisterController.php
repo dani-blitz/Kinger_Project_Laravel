@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\EmailVerificationCode;
+use App\Jobs\SendEmailJob;  // ← добавить
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
@@ -55,11 +55,8 @@ class RegisterController extends Controller
             'verification_password' => $request->password,
         ]);
 
-        // Отправляем письмо
-        Mail::raw("🔮 ТВОЙ КОД: $code 🔮\n\nАд ждёт тебя!", function ($message) use ($email) {
-            $message->to($email)
-                ->subject('🔪 Код подтверждения - TSCHOOL OF DEATH 🔪');
-        });
+        // ✅ Отправляем через RabbitMQ (вместо прямого Mail::)
+        SendEmailJob::dispatch($email, $code);
 
         return redirect()->route('verification.form');
     }

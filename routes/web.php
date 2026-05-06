@@ -5,7 +5,9 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\VerificationCodeController;
 use App\Http\Controllers\ThemeController;
+use App\Jobs\SendEmailJob;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -43,3 +45,22 @@ Route::middleware(['auth'])->group(function () {
 
 // Переключение тем
 Route::get('/theme/{theme}', [ThemeController::class, 'switch'])->name('theme.switch');
+
+// ========== ТЕСТОВЫЕ МАРШРУТЫ ДЛЯ RABBITMQ ==========
+
+// Простой тест работоспособности сервера
+Route::get('/test', function () {
+    return '✅ Сервер работает!';
+});
+
+// Тест отправки задачи в RabbitMQ
+Route::get('/test-queue', function () {
+    try {
+        SendEmailJob::dispatch('test@example.com', '123456');
+        Log::info('✅ Задача отправлена в RabbitMQ');
+        return '✅ Задача отправлена в очередь RabbitMQ! Проверь терминал с воркером 👀';
+    } catch (\Exception $e) {
+        Log::error('❌ Ошибка RabbitMQ: ' . $e->getMessage());
+        return '❌ Ошибка: ' . $e->getMessage();
+    }
+});

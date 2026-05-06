@@ -71,6 +71,34 @@ return [
             'after_commit' => false,
         ],
 
+        'rabbitmq' => [
+            'driver' => 'rabbitmq',
+            'queue' => env('RABBITMQ_QUEUE', 'default'),
+            'connection' => \PhpAmqpLib\Connection\AMQPStreamConnection::class,
+
+            'hosts' => [
+                [
+                    'host' => env('RABBITMQ_HOST', '127.0.0.1'),
+                    'port' => env('RABBITMQ_PORT', 5672),
+                    'user' => env('RABBITMQ_USER', 'guest'),
+                    'password' => env('RABBITMQ_PASSWORD', 'guest'),
+                    'vhost' => env('RABBITMQ_VHOST', '/'),
+                ],
+            ],
+
+            'options' => [
+                'ssl_options' => [],
+                'queue' => [
+                    'durable' => env('RABBITMQ_QUEUE_DURABLE', true),
+                ],
+                'exchange' => [
+                    'name' => env('RABBITMQ_EXCHANGE_NAME', 'laravel_exchange'),
+                    'type' => env('RABBITMQ_EXCHANGE_TYPE', 'direct'),
+                    'durable' => env('RABBITMQ_EXCHANGE_DURABLE', true),
+                ],
+            ],
+        ],
+
     ],
 
     /*

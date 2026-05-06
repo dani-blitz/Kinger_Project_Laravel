@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\EmailVerificationCode;
 use App\Models\User;
+use App\Jobs\SendEmailJob;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 
 class VerificationCodeController extends Controller
@@ -35,10 +35,8 @@ class VerificationCodeController extends Controller
         $name = $request->name;
         $password = $request->password;
 
-        // Генерируем 6-значный код
         $code = sprintf("%06d", mt_rand(1, 999999));
 
-        // Сохраняем в БД
         EmailVerificationCode::where('email', $email)->delete();
         EmailVerificationCode::create([
             'email' => $email,
@@ -47,17 +45,16 @@ class VerificationCodeController extends Controller
             'is_verified' => false,
         ]);
 
-        // Пишем в лог
-        Log::info("КОД ПОДТВЕРЖДЕНИЯ ДЛЯ {$email}: {$code}");
+        // Отправляем через RabbitMQ
+        SendEmailJob::dispatch($email, $code);
 
-        // Сохраняем в сессию
         session([
             'verification_email' => $email,
             'verification_name' => $name,
             'verification_password' => $password,
         ]);
 
-        return redirect()->route('verification.form')->with('success', '🔮 КОД ОТПРАВЛЕН! ПРОВЕРЬ ПОЧТУ!');
+        return redirect()->route('verification.form')->with('success', '🔮 КОД ОТПРАВЛЕН НА ПОЧТУ ЧЕРЕЗ RABBITMQ!');
     }
 
     // Проверить код
@@ -81,10 +78,8 @@ class VerificationCodeController extends Controller
             return back()->with('error', '💀 НЕВЕРНЫЙ ИЛИ ПРОСРОЧЕННЫЙ КОД! 💀');
         }
 
-        // Помечаем как подтверждённый
         $verification->update(['is_verified' => true]);
 
-        // Создаём пользователя
         $user = User::create([
             'name' => session('verification_name'),
             'email' => $email,
@@ -92,10 +87,8 @@ class VerificationCodeController extends Controller
             'email_verified_at' => now(),
         ]);
 
-        // Очищаем сессию
         session()->forget(['verification_email', 'verification_name', 'verification_password']);
 
-        // Логиним пользователя
         auth()->login($user);
 
         return redirect()->route('home')->with('success', '🔪 ДУША ПРОДАНА! ДОБРО ПОЖАЛОВАТЬ В АД! 🔪');
