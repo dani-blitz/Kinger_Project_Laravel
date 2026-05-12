@@ -104,6 +104,19 @@
             color: #ffffff;
         }
 
+        .admin-nav {
+            border: 2px solid #ff4444;
+            color: #ff4444;
+            background: rgba(255, 0, 0, 0.1);
+        }
+
+        .admin-nav:hover {
+            background: rgba(255, 0, 0, 0.3);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            border-color: #ff6666;
+            color: #ff6666;
+        }
+
         .card {
             background: rgba(26, 0, 51, 0.9);
             backdrop-filter: blur(10px);
@@ -248,6 +261,9 @@
         <a href="{{ route('tickets.index') }}" class="btn-nav">🎫 ТИКЕТЫ</a>
 
         @auth
+            @if(Auth::user()->is_admin)
+                <a href="{{ route('admin.dashboard') }}" class="btn-nav admin-nav">👑 АДМИНКА</a>
+            @endif
             <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                 @csrf
                 <button type="submit" class="btn-nav">🚪 ВЫХОД</button>

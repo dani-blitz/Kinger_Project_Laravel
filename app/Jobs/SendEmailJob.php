@@ -23,6 +23,6 @@ class SendEmailJob implements ShouldQueue
 
     public function handle(): void
     {
-        Log::info("🐇 RabbitMQ: Письмо для {$this->email} с кодом {$this->code}");
+        Log::info("✅ [КОД ВЕРИФИКАЦИИ] Для {$this->email} код: {$this->code}");
     }
 }

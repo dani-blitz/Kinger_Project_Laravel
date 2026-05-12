@@ -79,12 +79,31 @@
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 2px;
+            cursor: pointer;
         }
 
         .btn-nav:hover {
             background: #3a0000;
             color: #ff3333;
             box-shadow: 0 0 20px rgba(139,0,0,0.5);
+        }
+
+        .admin-nav {
+            border-color: #ff0000;
+            color: #ff0000;
+            animation: adminPulse 1.5s infinite;
+        }
+
+        .admin-nav:hover {
+            background: #ff0000;
+            color: #000000;
+            box-shadow: 0 0 30px rgba(255,0,0,0.8);
+        }
+
+        @keyframes adminPulse {
+            0% { text-shadow: 0 0 0px rgba(255,0,0,0); }
+            50% { text-shadow: 0 0 10px rgba(255,0,0,0.5); }
+            100% { text-shadow: 0 0 0px rgba(255,0,0,0); }
         }
 
         .card {
@@ -229,6 +248,9 @@
         <a href="{{ route('tickets.index') }}" class="btn-nav">🎫 ЖАЛОБЫ ДУШ</a>
 
         @auth
+            @if(Auth::user()->is_admin)
+                <a href="{{ route('admin.dashboard') }}" class="btn-nav admin-nav">👑 АДМИНКА</a>
+            @endif
             <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                 @csrf
                 <button type="submit" class="btn-nav">🚪 ПОКИНУТЬ АД</button>
@@ -239,6 +261,20 @@
     @if(session('success'))
         <div style="background: #1a0000; border-left: 5px solid #8b0000; padding: 10px; margin-bottom: 20px; color: #8b0000;">
             💀 {{ session('success') }} 💀
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div style="background: #1a0000; border-left: 5px solid #ff0000; padding: 10px; margin-bottom: 20px; color: #ff0000;">
+            ⚠️ {{ session('error') }} ⚠️
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div style="background: #1a0000; border-left: 5px solid #ff0000; padding: 10px; margin-bottom: 20px; color: #ff0000;">
+            @foreach($errors->all() as $error)
+                💀 {{ $error }}<br>
+            @endforeach
         </div>
     @endif
 
