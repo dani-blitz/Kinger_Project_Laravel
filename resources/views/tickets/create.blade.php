@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Создать тикет')
+@section('title', 'Создать задачу')
 
-@section('header', session('theme', 'horror') == 'neon' ? '🔮 НОВЫЙ ТИКЕТ' : '🎫 НОВЫЙ ТИКЕТ')
+@section('header', session('theme', 'light') == 'neon' ? '🔮 НОВАЯ ЗАДАЧА' : '🎫 НОВАЯ ЗАДАЧА')
 
 @section('content')
     <div class="card">
@@ -10,11 +10,11 @@
             @csrf
             <div style="margin-bottom: 20px;">
                 <label>📌 ТЕМА</label>
-                <input type="text" name="title" required placeholder="Тема тикета...">
+                <input type="text" name="title" required placeholder="Тема задачи...">
             </div>
             <div style="margin-bottom: 20px;">
                 <label>📝 ОПИСАНИЕ</label>
-                <textarea name="description" rows="5" placeholder="Подробное описание..."></textarea>
+                <textarea name="description" rows="5" placeholder="Описание задачи..."></textarea>
             </div>
             <div style="margin-bottom: 20px;">
                 <label>📅 ДЕДЛАЙН</label>
@@ -36,7 +36,7 @@
                     <option value="closed">⚫ Закрыт</option>
                 </select>
             </div>
-            <button type="submit" class="btn">✅ СОЗДАТЬ ТИКЕТ</button>
+            <button type="submit" class="btn">✅ СОЗДАТЬ</button>
             <a href="{{ route('tickets.index') }}" class="btn">🔙 НАЗАД</a>
         </form>
     </div>

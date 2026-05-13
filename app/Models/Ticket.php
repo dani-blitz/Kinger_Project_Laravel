@@ -10,7 +10,16 @@ class Ticket extends Model
     use HasFactory;
 
     protected $fillable = [
-        'subject', 'message', 'status', 'priority', 'user_id'
+        'title',
+        'description',
+        'priority',
+        'status',
+        'deadline',
+        'user_id',
+    ];
+
+    protected $casts = [
+        'deadline' => 'datetime',
     ];
 
     public function user()

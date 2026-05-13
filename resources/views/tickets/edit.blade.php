@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Редактировать тикет')
+@section('title', 'Редактировать задачу')
 
-@section('header', session('theme', 'horror') == 'neon' ? '🔮 РЕДАКТИРОВАТЬ' : '✏️ РЕДАКТИРОВАТЬ ТИКЕТ')
+@section('header', session('theme', 'light') == 'neon' ? '🔮 РЕДАКТИРОВАТЬ' : '✏️ РЕДАКТИРОВАТЬ ЗАДАЧУ')
 
 @section('content')
     <div class="card">
