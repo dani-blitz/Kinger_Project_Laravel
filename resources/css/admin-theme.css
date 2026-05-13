@@ -1,165 +1,226 @@
 /* ADMIN PANEL GREEN THEME */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body.admin-theme {
-    background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%);
-    font-family: 'Poppins', 'Segoe UI', monospace;
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     min-height: 100vh;
 }
 
-/* Админ-шапка */
-.admin-theme .header {
-    background: rgba(27, 94, 32, 0.95) !important;
-    border-bottom: 3px solid #4CAF50 !important;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
+/* Шапка */
+.admin-header {
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
-.admin-theme .header nav a {
-    color: #E8F5E9 !important;
+.admin-nav {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
-.admin-theme .header nav a:hover {
-    color: #A5D6A7 !important;
-    text-shadow: 0 0 5px rgba(76,175,80,0.5) !important;
+.admin-nav a {
+    color: #2e7d32;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s;
 }
 
-/* Админ-карточки */
-.admin-theme .card {
-    background: rgba(255, 255, 255, 0.98) !important;
-    border: 2px solid #4CAF50 !important;
-    border-radius: 15px !important;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2) !important;
-    margin-bottom: 20px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+.admin-nav a:hover {
+    background: #e8f5e9;
+    color: #1b5e20;
 }
 
-.admin-theme .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+.admin-nav a.active {
+    background: #2e7d32;
+    color: white;
 }
 
-.admin-theme .card-header {
-    background: linear-gradient(135deg, #2E7D32, #4CAF50) !important;
-    color: white !important;
-    font-weight: bold;
-    border-top-left-radius: 13px !important;
-    border-top-right-radius: 13px !important;
-    border-bottom: none !important;
-    padding: 15px 20px !important;
+.admin-user {
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
-.admin-theme .card-header h2,
-.admin-theme .card-header h3,
-.admin-theme .card-header h4 {
-    color: white !important;
-    margin: 0;
+.admin-user span {
+    color: #2e7d32;
+    font-weight: 500;
 }
 
-/* Админ-кнопки */
-.admin-theme .btn {
-    background: linear-gradient(135deg, #2E7D32, #4CAF50) !important;
-    color: white !important;
-    border: none !important;
-    padding: 10px 20px !important;
-    border-radius: 8px !important;
+.logout-btn {
+    background: none;
+    border: none;
+    color: #d32f2f;
     cursor: pointer;
-    transition: all 0.3s ease;
-    margin: 5px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s;
 }
 
-.admin-theme .btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 15px rgba(76,175,80,0.4);
+.logout-btn:hover {
+    background: #ffebee;
 }
 
-.admin-theme .btn-danger {
-    background: linear-gradient(135deg, #D32F2F, #F44336) !important;
+/* Контейнер */
+.container {
+    max-width: 1400px;
+    margin: 30px auto;
+    padding: 0 20px;
 }
 
-.admin-theme .btn-warning {
-    background: linear-gradient(135deg, #F57C00, #FF9800) !important;
+/* Карточки */
+.card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin-bottom: 24px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
-/* Админ-таблицы */
-.admin-theme table {
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #2e7d32, #1b5e20);
+    color: white;
+    padding: 16px 20px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* Статистика */
+.stat-card {
+    text-align: center;
+    padding: 20px;
+}
+
+.stat-number {
+    font-size: 42px;
+    font-weight: 700;
+    color: #2e7d32;
+}
+
+.stat-label {
+    color: #666;
+    margin-top: 8px;
+    font-size: 14px;
+}
+
+/* Таблицы */
+table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.admin-theme table th {
-    background: #E8F5E9;
-    color: #1B5E20;
-    padding: 12px;
+th {
     text-align: left;
-    border-bottom: 2px solid #4CAF50;
+    padding: 12px;
+    background: #f5f5f5;
+    color: #333;
+    font-weight: 600;
+    border-bottom: 2px solid #2e7d32;
 }
 
-.admin-theme table td {
-    padding: 10px;
-    border-bottom: 1px solid #E8F5E9;
+td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    color: #555;
 }
 
-.admin-theme table tr:hover {
-    background: #F1F8E9;
+tr:hover td {
+    background: #f9f9f9;
 }
 
-/* Админ-числа */
-.admin-theme h2, .admin-theme h3 {
-    color: #1B5E20;
-    font-weight: bold;
-}
-
-.admin-theme .text-center h2 {
-    font-size: 2.5rem;
-    color: #2E7D32;
-}
-
-/* Админ-бейджи */
-.admin-theme .badge {
-    background: #4CAF50;
+/* Кнопки */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #2e7d32, #1b5e20);
     color: white;
-    padding: 5px 10px;
-    border-radius: 10px;
+    text-decoration: none;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+    margin: 5px;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.4);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #d32f2f, #c62828);
+}
+
+.btn-danger:hover {
+    box-shadow: 0 4px 12px rgba(211, 47, 47, 0.4);
+}
+
+.btn-sm {
+    padding: 5px 12px;
     font-size: 12px;
 }
 
-/* Убираем кнопку переключения темы в админке */
-.admin-theme .theme-switcher {
-    display: none !important;
-}
-
 /* Пагинация */
-.admin-theme .pagination {
+.pagination {
     display: flex;
     justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
     list-style: none;
-    padding: 0;
 }
 
-.admin-theme .pagination li {
-    margin: 0 5px;
-}
-
-.admin-theme .pagination a,
-.admin-theme .pagination span {
-    background: #E8F5E9;
-    color: #1B5E20;
+.pagination a, .pagination span {
+    display: inline-block;
     padding: 8px 12px;
-    border-radius: 5px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    color: #2e7d32;
     text-decoration: none;
-    transition: all 0.3s ease;
+    transition: all 0.3s;
 }
 
-.admin-theme .pagination a:hover {
-    background: #4CAF50;
+.pagination a:hover {
+    background: #2e7d32;
     color: white;
+    border-color: #2e7d32;
 }
 
-.admin-theme .pagination .active span {
-    background: #2E7D32;
+.pagination .active span {
+    background: #2e7d32;
     color: white;
+    border-color: #2e7d32;
 }
 
 /* Анимации */
-@keyframes adminFadeIn {
+@keyframes fadeIn {
     from {
         opacity: 0;
         transform: translateY(20px);
@@ -170,21 +231,49 @@ body.admin-theme {
     }
 }
 
-.admin-theme .card {
-    animation: adminFadeIn 0.5s ease;
+.card {
+    animation: fadeIn 0.4s ease;
 }
 
+/* Уведомления */
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border-left: 4px solid #28a745;
+}
+
+.alert-danger {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border-left: 4px solid #dc3545;
+}
+
+/* Адаптив */
 @media (max-width: 768px) {
-    .admin-theme .card-header {
-        font-size: 14px;
+    .admin-header {
+        flex-direction: column;
+        text-align: center;
     }
 
-    .admin-theme table {
+    .admin-nav {
+        justify-content: center;
+    }
+
+    table, th, td {
         font-size: 12px;
     }
 
-    .admin-theme .btn {
-        padding: 6px 12px;
-        font-size: 12px;
+    th, td {
+        padding: 8px;
+    }
+
+    .stat-number {
+        font-size: 28px;
     }
 }
