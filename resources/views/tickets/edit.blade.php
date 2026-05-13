@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Редактировать тикет #'.$ticket->id)
+@section('title', 'Редактировать тикет')
 
-@section('header', session('theme', 'horror') == 'neon' ? '✏️ РЕДАКТИРОВАТЬ ТИКЕТ' : '✏️ ИЗМЕНИТЬ ГРЕХ')
+@section('header', session('theme', 'horror') == 'neon' ? '🔮 РЕДАКТИРОВАТЬ' : '✏️ РЕДАКТИРОВАТЬ ТИКЕТ')
 
 @section('content')
     <div class="card">
@@ -10,31 +10,35 @@
             @csrf
             @method('PUT')
             <div style="margin-bottom: 20px;">
-                <label>💀 ТЕМА</label>
-                <input type="text" name="subject" value="{{ $ticket->subject }}" required>
+                <label>📌 ТЕМА</label>
+                <input type="text" name="title" value="{{ old('title', $ticket->title) }}" required>
             </div>
             <div style="margin-bottom: 20px;">
-                <label>🔥 ПОДРОБНОСТИ</label>
-                <textarea name="message" rows="6" required>{{ $ticket->message }}</textarea>
+                <label>📝 ОПИСАНИЕ</label>
+                <textarea name="description" rows="5">{{ old('description', $ticket->description) }}</textarea>
             </div>
             <div style="margin-bottom: 20px;">
-                <label>⚡ СТАТУС</label>
-                <select name="status">
-                    <option value="open" {{ $ticket->status == 'open' ? 'selected' : '' }}>🟡 Открыт</option>
-                    <option value="in_progress" {{ $ticket->status == 'in_progress' ? 'selected' : '' }}>🔵 В работе</option>
-                    <option value="closed" {{ $ticket->status == 'closed' ? 'selected' : '' }}>✅ Закрыт</option>
-                </select>
+                <label>📅 ДЕДЛАЙН</label>
+                <input type="datetime-local" name="deadline" value="{{ $ticket->deadline ? date('Y-m-d\TH:i', strtotime($ticket->deadline)) : '' }}">
             </div>
             <div style="margin-bottom: 20px;">
                 <label>⚡ ПРИОРИТЕТ</label>
                 <select name="priority">
-                    <option value="low" {{ $ticket->priority == 'low' ? 'selected' : '' }}>🟢 Низкий</option>
-                    <option value="medium" {{ $ticket->priority == 'medium' ? 'selected' : '' }}>🟠 Средний</option>
-                    <option value="high" {{ $ticket->priority == 'high' ? 'selected' : '' }}>🔴 Высокий</option>
+                    <option value="low" {{ $ticket->priority == 'low' ? 'selected' : '' }}>📗 Низкий</option>
+                    <option value="medium" {{ $ticket->priority == 'medium' ? 'selected' : '' }}>📙 Средний</option>
+                    <option value="high" {{ $ticket->priority == 'high' ? 'selected' : '' }}>📕 Высокий</option>
                 </select>
             </div>
-            <button type="submit" class="btn">💾 ОБНОВИТЬ</button>
-            <a href="{{ route('tickets.show', $ticket) }}" class="btn">❌ ОТМЕНА</a>
+            <div style="margin-bottom: 20px;">
+                <label>📊 СТАТУС</label>
+                <select name="status">
+                    <option value="open" {{ $ticket->status == 'open' ? 'selected' : '' }}>🟢 Открыт</option>
+                    <option value="in_progress" {{ $ticket->status == 'in_progress' ? 'selected' : '' }}>🟡 В работе</option>
+                    <option value="closed" {{ $ticket->status == 'closed' ? 'selected' : '' }}>⚫ Закрыт</option>
+                </select>
+            </div>
+            <button type="submit" class="btn">💾 СОХРАНИТЬ</button>
+            <a href="{{ route('tickets.index') }}" class="btn">🔙 НАЗАД</a>
         </form>
     </div>
 @endsection

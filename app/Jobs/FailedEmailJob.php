@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\FailedEmailLog;
+use App\Models\FailedEmailError;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -28,20 +28,31 @@ class FailedEmailJob implements ShouldQueue
 
     public function handle(): void
     {
-        try {
-            FailedEmailLog::create([
-                'email' => $this->email,
-                'code' => $this->code,
-                'error_message' => $this->errorMessage,
-                'queue_name' => 'failed',
-                'attempts' => $this->attempt,
-                'failed_at' => now(),
-            ]);
+        $errorType = $this->detectErrorType($this->errorMessage);
 
-            Log::info("✅ Ошибка сохранена в БД для {$this->email}");
+        FailedEmailError::create([
+            'email' => $this->email,
+            'code' => $this->code,
+            'error_type' => $errorType,
+            'error_message' => $this->errorMessage,
+            'attempts' => $this->attempt,
+            'failed_at' => now(),
+        ]);
 
-        } catch (\Exception $e) {
-            Log::error("❌ Не удалось сохранить ошибку в БД: " . $e->getMessage());
-        }
+        Log::info("✅ Ошибка почты сохранена в БД", [
+            'email' => $this->email,
+            'type' => $errorType
+        ]);
+    }
+
+    protected function detectErrorType($message)
+    {
+        $message = strtolower($message);
+
+        if (str_contains($message, 'authentic')) return 'auth';
+        if (str_contains($message, 'timeout')) return 'timeout';
+        if (str_contains($message, 'connection') || str_contains($message, 'connect')) return 'connection';
+        if (str_contains($message, 'smtp')) return 'smtp';
+        return 'unknown';
     }
 }

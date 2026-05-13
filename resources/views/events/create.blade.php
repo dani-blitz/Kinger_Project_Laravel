@@ -2,58 +2,30 @@
 
 @section('title', 'Создать событие')
 
-@section('header', session('theme', 'horror') == 'neon' ? '✨ СОЗДАТЬ НЕОННОЕ СОБЫТИЕ' : '🔮 ПРИЗВАТЬ НОВОЕ ЗЛО')
+@section('header', session('theme', 'horror') == 'neon' ? '🔮 НОВОЕ СОБЫТИЕ' : '📅 НОВОЕ СОБЫТИЕ')
 
 @section('content')
     <div class="card">
         <form method="POST" action="{{ route('events.store') }}">
             @csrf
             <div style="margin-bottom: 20px;">
-                <label>👹 НАЗВАНИЕ</label>
-                <input type="text" name="title" required placeholder="Введите название...">
+                <label>📌 НАЗВАНИЕ</label>
+                <input type="text" name="title" required placeholder="Название события...">
             </div>
             <div style="margin-bottom: 20px;">
-                <label>📜 ОПИСАНИЕ</label>
-                <textarea name="description" rows="4" placeholder="Описание..."></textarea>
+                <label>📝 ОПИСАНИЕ</label>
+                <textarea name="description" rows="5" placeholder="Описание события..."></textarea>
             </div>
             <div style="margin-bottom: 20px;">
-                <label>⏰ ДАТА НАЧАЛА</label>
-                <input type="datetime-local" name="start_time" required
-                       min="{{ date('Y-m-d\TH:i') }}"
-                       max="{{ date('Y-m-d\TH:i', strtotime('+10 years')) }}">
+                <label>📅 ДАТА НАЧАЛА</label>
+                <input type="datetime-local" name="start_time" required>
             </div>
             <div style="margin-bottom: 20px;">
-                <label>💀 ДАТА ОКОНЧАНИЯ</label>
-                <input type="datetime-local" name="end_time" required
-                       min="{{ date('Y-m-d\TH:i') }}"
-                       max="{{ date('Y-m-d\TH:i', strtotime('+10 years')) }}">
+                <label>📅 ДАТА ОКОНЧАНИЯ</label>
+                <input type="datetime-local" name="end_time" required>
             </div>
-            <div style="margin-bottom: 20px;">
-                <label>📍 МЕСТО</label>
-                <input type="text" name="location" placeholder="Где пройдет?">
-            </div>
-            <button type="submit" class="btn">💾 СОХРАНИТЬ</button>
-            <a href="{{ route('events.index') }}" class="btn">❌ ОТМЕНА</a>
+            <button type="submit" class="btn">✅ СОЗДАТЬ</button>
+            <a href="{{ route('events.index') }}" class="btn">🔙 НАЗАД</a>
         </form>
     </div>
-
-    <script>
-        const startTimeInput = document.querySelector('input[name="start_time"]');
-        const endTimeInput = document.querySelector('input[name="end_time"]');
-
-        startTimeInput.addEventListener('change', function() {
-            if (startTimeInput.value && endTimeInput.value && endTimeInput.value <= startTimeInput.value) {
-                alert('Дата окончания должна быть позже даты начала!');
-                endTimeInput.value = '';
-            }
-            endTimeInput.min = startTimeInput.value;
-        });
-
-        endTimeInput.addEventListener('change', function() {
-            if (endTimeInput.value <= startTimeInput.value) {
-                alert('Дата окончания должна быть позже даты начала!');
-                endTimeInput.value = '';
-            }
-        });
-    </script>
 @endsection

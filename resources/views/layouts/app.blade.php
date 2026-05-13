@@ -1,18 +1,13 @@
-@php
-    $currentTheme = session('theme', 'horror');
-@endphp
-
-@if($currentTheme == 'neon')
-    <!doctype html>
+<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', config('app.name', 'NEON SCHOOL'))</title>
+    <title>@yield('title', 'Vortex')</title>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
         * {
             margin: 0;
@@ -21,57 +16,48 @@
         }
 
         body {
-            font-family: 'Orbitron', monospace;
-            background: linear-gradient(135deg, #1a0033 0%, #0d0020 50%, #1a0033 100%);
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image:
-                linear-gradient(rgba(157, 0, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(157, 0, 255, 0.05) 1px, transparent 1px);
-            background-size: 30px 30px;
-            pointer-events: none;
-            z-index: 0;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            position: relative;
-            z-index: 1;
         }
 
         .header {
             text-align: center;
             margin-bottom: 40px;
+            animation: slideDown 0.6s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .header h1 {
-            font-family: 'Orbitron', monospace;
             font-size: 56px;
-            background: linear-gradient(135deg, #9d00ff, #00ffff, #9d00ff);
-            background-size: 200% 200%;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #f0f0f0);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-shadow: 0 0 30px rgba(157, 0, 255, 0.5);
-            animation: gradient 3s ease infinite;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
 
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        .header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 18px;
+            margin-top: 10px;
         }
 
         .nav-buttons {
@@ -84,143 +70,101 @@
 
         .btn-nav {
             padding: 12px 25px;
-            background: rgba(157, 0, 255, 0.1);
+            background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
-            border: 1px solid #9d00ff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 50px;
-            color: #00ffff;
+            color: white;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 500;
             transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 12px;
+            cursor: pointer;
         }
 
         .btn-nav:hover {
-            background: rgba(157, 0, 255, 0.3);
-            box-shadow: 0 0 20px rgba(157, 0, 255, 0.5);
-            border-color: #00ffff;
-            color: #ffffff;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         .admin-nav {
-            border: 2px solid #ff4444;
-            color: #ff4444;
-            background: rgba(255, 0, 0, 0.1);
+            background: rgba(255, 193, 7, 0.3);
+            border-color: #ffc107;
+            color: #ffc107;
         }
 
         .admin-nav:hover {
-            background: rgba(255, 0, 0, 0.3);
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
-            border-color: #ff6666;
-            color: #ff6666;
+            background: rgba(255, 193, 7, 0.5);
         }
 
         .card {
-            background: rgba(26, 0, 51, 0.9);
-            backdrop-filter: blur(10px);
-            border: 1px solid #9d00ff;
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
             padding: 25px;
             margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
         }
 
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(157, 0, 255, 0.3);
-            border-color: #00ffff;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
         }
 
         .card h2, .card h3 {
-            background: linear-gradient(135deg, #9d00ff, #00ffff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            color: #333;
             margin-bottom: 15px;
         }
 
         .card p {
-            color: #b366ff;
+            color: #666;
             line-height: 1.6;
         }
 
         .btn {
             display: inline-block;
-            padding: 8px 16px;
-            background: rgba(157, 0, 255, 0.2);
-            color: #00ffff;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
             text-decoration: none;
-            border: 1px solid #9d00ff;
+            border: none;
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s;
             margin: 5px;
+            font-weight: 500;
         }
 
         .btn:hover {
-            background: rgba(157, 0, 255, 0.5);
-            box-shadow: 0 0 15px rgba(157, 0, 255, 0.5);
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
         .btn-danger {
-            background: rgba(255, 0, 100, 0.2);
-            border-color: #ff0066;
-            color: #ff66cc;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
         }
 
         input, textarea, select {
             width: 100%;
             padding: 12px;
-            background: rgba(26, 0, 51, 0.8);
-            border: 1px solid #9d00ff;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
             border-radius: 10px;
-            color: #00ffff;
-            font-family: 'Orbitron', monospace;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #00ffff;
-            box-shadow: 0 0 15px rgba(157, 0, 255, 0.5);
-        }
-
-        label {
-            color: #9d00ff;
-            font-weight: bold;
-        }
-
-        .theme-switcher {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 100;
-            display: flex;
-            gap: 10px;
-        }
-
-        .theme-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: 2px solid;
-            cursor: pointer;
+            font-family: 'Inter', sans-serif;
             transition: all 0.3s;
         }
 
-        .theme-btn:hover {
-            transform: scale(1.1);
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        .theme-horror {
-            background: linear-gradient(135deg, #1a0000, #8b0000);
-            border-color: #ff0000;
-        }
-
-        .theme-neon {
-            background: linear-gradient(135deg, #1a0033, #9d00ff);
-            border-color: #00ffff;
+        label {
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
         }
 
         .pagination {
@@ -232,33 +176,63 @@
 
         .pagination a, .pagination span {
             padding: 8px 15px;
-            background: rgba(157, 0, 255, 0.1);
-            border: 1px solid #9d00ff;
+            background: white;
+            border: 1px solid #e9ecef;
             border-radius: 10px;
-            color: #00ffff;
+            color: #667eea;
             text-decoration: none;
+            transition: all 0.3s;
         }
 
         .pagination a:hover {
-            background: rgba(157, 0, 255, 0.3);
+            background: #667eea;
+            color: white;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="datetime-local"] {
+            color-scheme: light;
+        }
+
+        .row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .col-md-6 {
+            flex: 1;
+            min-width: 250px;
         }
     </style>
 </head>
 <body>
-<div class="theme-switcher">
-    <a href="{{ route('theme.switch', 'horror') }}" class="theme-btn theme-horror" title="Horror Theme"></a>
-    <a href="{{ route('theme.switch', 'neon') }}" class="theme-btn theme-neon" title="Neon Theme"></a>
-</div>
 
 <div class="container">
     <div class="header">
-        <h1>@yield('header', '⚡ NEON SCHOOL ⚡')</h1>
+        <h1>@yield('header', '🌀 VORTEX')</h1>
+        <p>Управляй событиями и задачами</p>
     </div>
 
     <div class="nav-buttons">
         <a href="{{ route('home') }}" class="btn-nav">🏠 ГЛАВНАЯ</a>
         <a href="{{ route('events.index') }}" class="btn-nav">📅 СОБЫТИЯ</a>
-        <a href="{{ route('tickets.index') }}" class="btn-nav">🎫 ТИКЕТЫ</a>
+        <a href="{{ route('tickets.index') }}" class="btn-nav">🎫 ЗАДАЧИ</a>
 
         @auth
             @if(Auth::user()->is_admin)
@@ -272,8 +246,22 @@
     </div>
 
     @if(session('success'))
-        <div style="background: rgba(157, 0, 255, 0.2); border-left: 4px solid #00ffff; padding: 15px; margin-bottom: 20px; color: #00ffff;">
+        <div class="alert-success">
             ✨ {{ session('success') }} ✨
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert-danger">
+            ⚠️ {{ session('error') }} ⚠️
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="alert-danger">
+            @foreach($errors->all() as $error)
+                • {{ $error }}<br>
+            @endforeach
         </div>
     @endif
 
@@ -281,6 +269,3 @@
 </div>
 </body>
 </html>
-@else
-    @include('layouts.horror')
-@endif

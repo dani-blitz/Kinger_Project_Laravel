@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\EmailVerificationCode;
 use App\Models\User;
+use App\Models\FailedCodeError;
 use App\Jobs\SendEmailJob;
-use App\Jobs\FailedEmailJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -70,20 +70,24 @@ class VerificationCodeController extends Controller
 
         // Проверяем наличие email в сессии
         if ($request->email !== session('verification_email')) {
-            // Логируем попытку подмены email
+            $errorMessage = 'Попытка подмены email при верификации';
+
+            // Сохраняем ошибку кода в БД
+            FailedCodeError::create([
+                'email' => $request->email,
+                'code_entered' => $request->code,
+                'expected_code' => null,
+                'error_type' => 'wrong_email',
+                'error_message' => $errorMessage,
+                'ip_address' => $request->ip(),
+                'failed_at' => now(),
+            ]);
+
             Log::warning('Попытка подмены email при верификации', [
                 'session_email' => session('verification_email'),
                 'submitted_email' => $request->email,
                 'ip' => $request->ip()
             ]);
-
-            // Отправляем в failed ошибку
-            FailedEmailJob::dispatch(
-                $request->email,
-                $request->code,
-                'Попытка подмены email при верификации',
-                1
-            );
 
             return back()->withErrors(['email' => 'Ошибка верификации. Попробуйте снова.']);
         }
@@ -101,23 +105,32 @@ class VerificationCodeController extends Controller
                 ->where('code', $request->code)
                 ->first();
 
+            $errorType = '';
+            $errorMessage = '';
+
             if ($exists && $exists->expires_at <= now()) {
-                $error = 'Код просрочен. Запросите новый код.';
+                $errorType = 'expired';
+                $errorMessage = 'Код просрочен. Запросите новый код.';
             } elseif ($exists) {
-                $error = 'Неверный код проверки.';
+                $errorType = 'invalid';
+                $errorMessage = 'Неверный код проверки.';
             } else {
-                $error = 'Неверный код. Попробуйте снова.';
+                $errorType = 'invalid';
+                $errorMessage = 'Неверный код. Попробуйте снова.';
             }
 
-            // Отправляем в failed ошибку
-            FailedEmailJob::dispatch(
-                $request->email,
-                $request->code,
-                $error . ' Предоставлен код: ' . $request->code,
-                1
-            );
+            // Сохраняем ошибку кода в БД
+            FailedCodeError::create([
+                'email' => $request->email,
+                'code_entered' => $request->code,
+                'expected_code' => $exists->code ?? null,
+                'error_type' => $errorType,
+                'error_message' => $errorMessage . ' Введён код: ' . $request->code,
+                'ip_address' => $request->ip(),
+                'failed_at' => now(),
+            ]);
 
-            return back()->withErrors(['code' => $error]);
+            return back()->withErrors(['code' => $errorMessage]);
         }
 
         // Код верный - подтверждаем

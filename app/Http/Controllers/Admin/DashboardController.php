@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Event;
 use App\Models\Ticket;
-use App\Models\FailedEmailLog;
+use App\Models\FailedEmailError;
+use App\Models\FailedCodeError;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -17,100 +18,62 @@ class DashboardController extends Controller
         $totalUsers = User::count();
         $totalEvents = Event::count();
         $totalTickets = Ticket::count();
-        $totalFailedLogs = FailedEmailLog::count();
+        $totalEmailErrors = FailedEmailError::count();
+        $totalCodeErrors = FailedCodeError::count();
+        $totalFailedLogs = $totalEmailErrors + $totalCodeErrors;
 
         // ========== ВСЕГО ЗАПРОСОВ ==========
-        // Всего попыток регистрации (успешные + ошибки)
-        $totalRegistrationAttempts = $totalUsers + $totalFailedLogs;
+        $successfulRegistrations = User::whereNotNull('email_verified_at')->count();
 
-        // Всего запросов на отправку кода
-        $totalCodeRequests = $totalFailedLogs; // каждая ошибка = запрос кода
-
-        // Успешных отправок кода (без ошибок)
-        $successfulCodeSends = $totalUsers - FailedEmailLog::where('email', '!=', '')->distinct('email')->count();
+        // ВСЕГО ПОПЫТОК = успешные + ошибки кода + ошибки почты
+        $totalRegistrationAttempts = $successfulRegistrations + $totalCodeErrors + $totalEmailErrors;
+        $totalCodeRequests = $totalCodeErrors;
+        $successfulCodeSends = $successfulRegistrations;
 
         // ========== СТАТИСТИКА РЕГИСТРАЦИЙ ==========
         $usersToday = User::whereDate('created_at', today())->count();
         $usersWeek = User::whereBetween('created_at', [now()->subWeek(), now()])->count();
         $usersMonth = User::whereBetween('created_at', [now()->subMonth(), now()])->count();
 
-        $successfulRegistrations = User::whereNotNull('email_verified_at')->count();
-        $successPercent = $totalUsers > 0 ? round(($successfulRegistrations / $totalUsers) * 100, 1) : 0;
+        $successPercent = $totalRegistrationAttempts > 0 ? round(($successfulRegistrations / $totalRegistrationAttempts) * 100, 1) : 0;
         $errorRate = $totalRegistrationAttempts > 0 ? round(($totalFailedLogs / $totalRegistrationAttempts) * 100, 1) : 0;
 
         // ========== СТАТИСТИКА ОШИБОК ПОЧТЫ ==========
-        $allLogs = FailedEmailLog::all();
+        $smtpErrors = FailedEmailError::where('error_type', 'smtp')->count();
+        $connectionErrors = FailedEmailError::where('error_type', 'connection')->count();
+        $authErrors = FailedEmailError::where('error_type', 'auth')->count();
+        $timeoutErrors = FailedEmailError::where('error_type', 'timeout')->count();
+        $otherEmailErrors = FailedEmailError::where('error_type', 'unknown')->count();
 
-        $smtpErrors = 0;
-        $connectionErrors = 0;
-        $authErrors = 0;
-        $timeoutErrors = 0;
-        $invalidEmailErrors = 0;
-
-        foreach ($allLogs as $log) {
-            $msg = $log->error_message;
-
-            if (stripos($msg, 'authentication') !== false || stripos($msg, 'Authent') !== false) {
-                $authErrors++;
-            } elseif (stripos($msg, 'timeout') !== false) {
-                $timeoutErrors++;
-            } elseif (stripos($msg, 'invalid') !== false && stripos($msg, 'email') !== false) {
-                $invalidEmailErrors++;
-            } elseif (stripos($msg, 'Connection') !== false || stripos($msg, 'connect') !== false) {
-                $connectionErrors++;
-            } elseif (stripos($msg, 'SMTP') !== false) {
-                $smtpErrors++;
-            }
-        }
-
-        $totalCategorized = $smtpErrors + $connectionErrors + $authErrors + $timeoutErrors + $invalidEmailErrors;
-        $otherErrors = $totalFailedLogs - $totalCategorized;
-
-        // Проценты от общего числа ошибок
-        $smtpPercent = $totalFailedLogs > 0 ? round(($smtpErrors / $totalFailedLogs) * 100, 1) : 0;
-        $connectionPercent = $totalFailedLogs > 0 ? round(($connectionErrors / $totalFailedLogs) * 100, 1) : 0;
-        $authPercent = $totalFailedLogs > 0 ? round(($authErrors / $totalFailedLogs) * 100, 1) : 0;
-        $timeoutPercent = $totalFailedLogs > 0 ? round(($timeoutErrors / $totalFailedLogs) * 100, 1) : 0;
-        $invalidEmailPercent = $totalFailedLogs > 0 ? round(($invalidEmailErrors / $totalFailedLogs) * 100, 1) : 0;
-        $otherPercent = $totalFailedLogs > 0 ? round(($otherErrors / $totalFailedLogs) * 100, 1) : 0;
+        $smtpPercent = $totalEmailErrors > 0 ? round(($smtpErrors / $totalEmailErrors) * 100, 1) : 0;
+        $connectionPercent = $totalEmailErrors > 0 ? round(($connectionErrors / $totalEmailErrors) * 100, 1) : 0;
+        $authPercent = $totalEmailErrors > 0 ? round(($authErrors / $totalEmailErrors) * 100, 1) : 0;
+        $timeoutPercent = $totalEmailErrors > 0 ? round(($timeoutErrors / $totalEmailErrors) * 100, 1) : 0;
+        $otherEmailPercent = $totalEmailErrors > 0 ? round(($otherEmailErrors / $totalEmailErrors) * 100, 1) : 0;
 
         // ========== СТАТИСТИКА ОШИБОК КОДА ==========
-        $invalidCodeErrors = 0;
-        $expiredCodeErrors = 0;
-        $wrongEmailErrors = 0;
+        $invalidCodeErrors = FailedCodeError::where('error_type', 'invalid')->count();
+        $expiredCodeErrors = FailedCodeError::where('error_type', 'expired')->count();
+        $wrongEmailErrors = FailedCodeError::where('error_type', 'wrong_email')->count();
+        $formatCodeErrors = FailedCodeError::where('error_type', 'format')->count();
 
-        foreach ($allLogs as $log) {
-            $msg = $log->error_message;
+        $invalidCodePercent = $totalCodeErrors > 0 ? round(($invalidCodeErrors / $totalCodeErrors) * 100, 1) : 0;
+        $expiredCodePercent = $totalCodeErrors > 0 ? round(($expiredCodeErrors / $totalCodeErrors) * 100, 1) : 0;
+        $wrongEmailPercent = $totalCodeErrors > 0 ? round(($wrongEmailErrors / $totalCodeErrors) * 100, 1) : 0;
+        $formatCodePercent = $totalCodeErrors > 0 ? round(($formatCodeErrors / $totalCodeErrors) * 100, 1) : 0;
 
-            if (stripos($msg, 'Неверный код') !== false || stripos($msg, 'цифр') !== false) {
-                $invalidCodeErrors++;
-            } elseif (stripos($msg, 'просрочен') !== false || stripos($msg, 'истек') !== false) {
-                $expiredCodeErrors++;
-            } elseif (stripos($msg, 'email') !== false && (stripos($msg, 'невер') !== false || stripos($msg, 'Invalid') !== false)) {
-                $wrongEmailErrors++;
-            }
-        }
-
-        $totalCodeErrors = $invalidCodeErrors + $expiredCodeErrors + $wrongEmailErrors;
-
-        // Проценты от общего числа ошибок
-        $codeErrorsPercent = $totalFailedLogs > 0 ? round(($totalCodeErrors / $totalFailedLogs) * 100, 1) : 0;
-        $invalidCodePercent = $totalFailedLogs > 0 ? round(($invalidCodeErrors / $totalFailedLogs) * 100, 1) : 0;
-        $expiredCodePercent = $totalFailedLogs > 0 ? round(($expiredCodeErrors / $totalFailedLogs) * 100, 1) : 0;
-        $wrongEmailPercent = $totalFailedLogs > 0 ? round(($wrongEmailErrors / $totalFailedLogs) * 100, 1) : 0;
+        $codeErrorsPercent = $totalCodeRequests > 0 ? round(($totalCodeErrors / $totalCodeRequests) * 100, 1) : 0;
 
         return view('admin.dashboard', compact(
             'totalUsers', 'totalEvents', 'totalTickets', 'totalFailedLogs',
             'totalRegistrationAttempts', 'totalCodeRequests', 'successfulCodeSends',
             'usersToday', 'usersWeek', 'usersMonth',
             'successfulRegistrations', 'successPercent', 'errorRate',
-            'smtpErrors', 'connectionErrors', 'authErrors', 'timeoutErrors',
-            'invalidEmailErrors', 'otherErrors',
-            'smtpPercent', 'connectionPercent', 'authPercent', 'timeoutPercent',
-            'invalidEmailPercent', 'otherPercent',
-            'invalidCodeErrors', 'expiredCodeErrors', 'wrongEmailErrors',
-            'totalCodeErrors', 'codeErrorsPercent',
-            'invalidCodePercent', 'expiredCodePercent', 'wrongEmailPercent'
+            'smtpErrors', 'connectionErrors', 'authErrors', 'timeoutErrors', 'otherEmailErrors',
+            'smtpPercent', 'connectionPercent', 'authPercent', 'timeoutPercent', 'otherEmailPercent',
+            'totalEmailErrors', 'totalCodeErrors', 'codeErrorsPercent',
+            'invalidCodeErrors', 'expiredCodeErrors', 'wrongEmailErrors', 'formatCodeErrors',
+            'invalidCodePercent', 'expiredCodePercent', 'wrongEmailPercent', 'formatCodePercent'
         ));
     }
 }

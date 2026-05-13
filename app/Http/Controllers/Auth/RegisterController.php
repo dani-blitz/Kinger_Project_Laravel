@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\EmailVerificationCode;
-use App\Jobs\SendEmailJob;  // ← добавить
+use App\Jobs\SendEmailJob;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -55,7 +55,7 @@ class RegisterController extends Controller
             'verification_password' => $request->password,
         ]);
 
-        // ✅ Отправляем через RabbitMQ (вместо прямого Mail::)
+        // Отправляем через RabbitMQ
         SendEmailJob::dispatch($email, $code);
 
         return redirect()->route('verification.form');

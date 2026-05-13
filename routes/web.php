@@ -70,9 +70,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/failed-logs', [FailedLogsController::class, 'index'])->name('failed-logs');
 });
 
-// ========== ПЕРЕКЛЮЧЕНИЕ ТЕМ ==========
-Route::get('/theme/{theme}', [ThemeController::class, 'switch'])->name('theme.switch');
-
 // ========== ТЕСТОВЫЕ МАРШРУТЫ ==========
 Route::get('/test', function () {
     return '✅ Сервер работает!';

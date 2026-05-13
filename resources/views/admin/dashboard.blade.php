@@ -2,8 +2,6 @@
 
 @section('title', 'Админ-панель')
 
-@section('header', session('theme', 'horror') == 'neon' ? '🔮 АДМИН-ПАНЕЛЬ' : '👑 АДМИН-ПАНЕЛЬ')
-
 @section('content')
     <div class="container">
         <!-- Основная статистика -->
@@ -37,6 +35,7 @@
                     <div class="card-body">
                         <h2>{{ $totalFailedLogs }}</h2>
                         <p>⚠️ Всего ошибок</p>
+                        <small>📧 Почта: {{ $totalEmailErrors }} | 🔢 Код: {{ $totalCodeErrors }}</small>
                     </div>
                 </div>
             </div>
@@ -77,7 +76,7 @@
                 <div class="card">
                     <div class="card-header">📈 Успешные регистрации</div>
                     <div class="card-body">
-                        <h3 style="color: #4CAF50;">{{ $successfulRegistrations }} / {{ $totalUsers }}</h3>
+                        <h3 style="color: #4CAF50;">{{ $successfulRegistrations }} / {{ $totalRegistrationAttempts }}</h3>
                         <p>✅ Успех: <strong>{{ $successPercent }}%</strong></p>
                         <hr>
                         <p>📅 За сегодня: <strong>{{ $usersToday }}</strong></p>
@@ -89,24 +88,29 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header" style="background: #ff9800; color: white;">
-                        🔢 СТАТИСТИКА ОШИБОК КОДА
+                        🔢 СТАТИСТИКА ОШИБОК КОДА (всего: {{ $totalCodeErrors }})
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <h4>❌ Неверный код</h4>
                                 <p><strong>{{ $invalidCodeErrors }}</strong> ошибок</p>
-                                <p><strong>{{ $invalidCodePercent }}%</strong> от всех ошибок</p>
+                                <p><strong>{{ $invalidCodePercent }}%</strong></p>
                             </div>
-                            <div class="col-md-4">
-                                <h4>⏰ Просроченный код</h4>
+                            <div class="col-md-3">
+                                <h4>⏰ Просроченный</h4>
                                 <p><strong>{{ $expiredCodeErrors }}</strong> ошибок</p>
-                                <p><strong>{{ $expiredCodePercent }}%</strong> от всех ошибок</p>
+                                <p><strong>{{ $expiredCodePercent }}%</strong></p>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <h4>📧 Неверный email</h4>
                                 <p><strong>{{ $wrongEmailErrors }}</strong> ошибок</p>
-                                <p><strong>{{ $wrongEmailPercent }}%</strong> от всех ошибок</p>
+                                <p><strong>{{ $wrongEmailPercent }}%</strong></p>
+                            </div>
+                            <div class="col-md-3">
+                                <h4>📝 Формат кода</h4>
+                                <p><strong>{{ $formatCodeErrors }}</strong> ошибок</p>
+                                <p><strong>{{ $formatCodePercent }}%</strong></p>
                             </div>
                         </div>
                     </div>
@@ -119,41 +123,34 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header" style="background: #f44336; color: white;">
-                        📧 СТАТИСТИКА ОШИБОК ПОЧТЫ (всего: {{ $totalFailedLogs }})
+                        📧 СТАТИСТИКА ОШИБОК ПОЧТЫ (всего: {{ $totalEmailErrors }})
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-4">
-                                <h4>🔧 SMTP ошибки</h4>
-                                <p><strong>{{ $smtpErrors }}</strong> ошибок</p>
-                                <p><strong>{{ $smtpPercent }}%</strong> от всех ошибок</p>
+                            <div class="col-md-2">
+                                <h4>🔧 SMTP</h4>
+                                <p><strong>{{ $smtpErrors }}</strong></p>
+                                <p>{{ $smtpPercent }}%</p>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-2">
                                 <h4>❌ Connection</h4>
-                                <p><strong>{{ $connectionErrors }}</strong> ошибок</p>
-                                <p><strong>{{ $connectionPercent }}%</strong> от всех ошибок</p>
+                                <p><strong>{{ $connectionErrors }}</strong></p>
+                                <p>{{ $connectionPercent }}%</p>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-2">
                                 <h4>🔑 Auth</h4>
-                                <p><strong>{{ $authErrors }}</strong> ошибок</p>
-                                <p><strong>{{ $authPercent }}%</strong> от всех ошибок</p>
+                                <p><strong>{{ $authErrors }}</strong></p>
+                                <p>{{ $authPercent }}%</p>
                             </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-md-4">
+                            <div class="col-md-2">
                                 <h4>⏱️ Timeout</h4>
-                                <p><strong>{{ $timeoutErrors }}</strong> ошибок</p>
-                                <p><strong>{{ $timeoutPercent }}%</strong> от всех ошибок</p>
+                                <p><strong>{{ $timeoutErrors }}</strong></p>
+                                <p>{{ $timeoutPercent }}%</p>
                             </div>
-                            <div class="col-md-4">
-                                <h4>📧 Invalid Email</h4>
-                                <p><strong>{{ $invalidEmailErrors }}</strong> ошибок</p>
-                                <p><strong>{{ $invalidEmailPercent }}%</strong> от всех ошибок</p>
-                            </div>
-                            <div class="col-md-4">
-                                <h4>🔧 Другие ошибки</h4>
-                                <p><strong>{{ $otherErrors }}</strong> ошибок</p>
-                                <p><strong>{{ $otherPercent }}%</strong> от всех ошибок</p>
+                            <div class="col-md-2">
+                                <h4>📧 Другие</h4>
+                                <p><strong>{{ $otherEmailErrors }}</strong></p>
+                                <p>{{ $otherEmailPercent }}%</p>
                             </div>
                         </div>
                     </div>

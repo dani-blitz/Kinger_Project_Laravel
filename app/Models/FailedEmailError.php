@@ -4,17 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class FailedEmailLog extends Model
+class FailedEmailError extends Model
 {
-    protected $table = 'failed_email_logs';
+    protected $table = 'failed_email_errors';
 
     protected $fillable = [
-        'email',
-        'code',
-        'error_message',
-        'queue_name',
-        'attempts',
-        'failed_at'
+        'email', 'code', 'error_type', 'error_message', 'attempts', 'failed_at'
     ];
 
     protected $casts = [
