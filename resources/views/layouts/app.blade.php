@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Vortex')</title>
+    <title>@yield('title', 'SQUAD SERVER PORTAL')</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     @stack('styles')
@@ -12,14 +12,16 @@
 <body>
 <div class="container">
     <div class="header">
-        <h1>@yield('header', '🌀 VORTEX')</h1>
-        <p>Управляй событиями и задачами</p>
+        <img src="{{ asset('images/logo.png') }}" alt="SQUAD" class="header-logo">
+        <h1>@yield('header', '🎖️ SQUAD SERVER PORTAL')</h1>
+        <p>Управление сервером и репортами</p>
     </div>
 
     <div class="nav-buttons">
         <a href="{{ route('home') }}" class="btn-nav">🏠 ГЛАВНАЯ</a>
-        <a href="{{ route('events.index') }}" class="btn-nav">📅 СОБЫТИЯ</a>
-        <a href="{{ route('tickets.index') }}" class="btn-nav">🎫 ЗАДАЧИ</a>
+        <a href="{{ route('news.index') }}" class="btn-nav">📢 НОВОСТИ</a>
+        <a href="{{ route('reports.index') }}" class="btn-nav">⚠️ РЕПОРТЫ</a>
+        <a href="{{ route('servers.index') }}" class="btn-nav">🖥️ СЕРВЕРЫ</a>
 
         @auth
             @if(Auth::user()->is_admin)

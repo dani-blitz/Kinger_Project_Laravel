@@ -1,4 +1,3 @@
-/* Основные стили для всего сайта */
 * {
     margin: 0;
     padding: 0;
@@ -7,40 +6,66 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0a1a0f 0%, #0d2618 100%);
     min-height: 100vh;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/images/bg-pattern.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 0;
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
+    position: relative;
+    z-index: 1;
 }
 
-/* Шапка */
+/* Header */
 .header {
     text-align: center;
     margin-bottom: 40px;
-    animation: slideDown 0.6s ease;
+    animation: fadeInDown 0.6s ease;
+}
+
+.header-logo {
+    height: 80px;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
 }
 
 .header h1 {
     font-size: 48px;
     font-weight: 700;
-    background: linear-gradient(135deg, #fff, #f0f0f0);
+    background: linear-gradient(135deg, #e8f5e9, #a5d6a7);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    letter-spacing: 2px;
 }
 
 .header p {
-    color: rgba(255,255,255,0.9);
-    font-size: 18px;
+    color: rgba(255,255,255,0.7);
+    font-size: 16px;
     margin-top: 10px;
 }
 
-/* Навигация */
+/* Navigation */
 .nav-buttons {
     display: flex;
     justify-content: center;
@@ -51,11 +76,11 @@ body {
 
 .btn-nav {
     padding: 12px 25px;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(46, 125, 50, 0.3);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(76, 175, 80, 0.5);
     border-radius: 50px;
-    color: white;
+    color: #e8f5e9;
     text-decoration: none;
     font-weight: 500;
     transition: all 0.3s ease;
@@ -63,43 +88,48 @@ body {
 }
 
 .btn-nav:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(76, 175, 80, 0.5);
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 5px 20px rgba(76, 175, 80, 0.3);
 }
 
 .admin-nav {
-    background: rgba(255, 193, 7, 0.3);
-    border-color: #ffc107;
-    color: #ffc107;
+    background: rgba(211, 47, 47, 0.3);
+    border-color: #d32f2f;
 }
 
 .admin-nav:hover {
-    background: rgba(255, 193, 7, 0.5);
+    background: rgba(211, 47, 47, 0.5);
 }
 
-/* Карточки */
+/* Cards */
 .card {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(10, 20, 15, 0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(76, 175, 80, 0.3);
     border-radius: 20px;
     padding: 25px;
     margin-bottom: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
 }
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    border-color: #4CAF50;
+    box-shadow: 0 15px 40px rgba(76, 175, 80, 0.2);
 }
 
 .card h2, .card h3 {
-    color: #333;
+    background: linear-gradient(135deg, #e8f5e9, #a5d6a7);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
     margin-bottom: 15px;
 }
 
 .card p {
-    color: #666;
+    color: rgba(255,255,255,0.7);
     line-height: 1.6;
 }
 
@@ -113,11 +143,11 @@ body {
     font-weight: 600;
 }
 
-/* Кнопки */
+/* Buttons */
 .btn {
     display: inline-block;
     padding: 10px 20px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #2e7d32, #1b5e20);
     color: white;
     text-decoration: none;
     border: none;
@@ -130,43 +160,43 @@ body {
 
 .btn:hover {
     transform: scale(1.05);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 5px 15px rgba(46, 125, 50, 0.5);
 }
 
 .btn-danger {
-    background: linear-gradient(135deg, #f093fb, #f5576c);
+    background: linear-gradient(135deg, #d32f2f, #c62828);
 }
 
-.btn-sm {
-    padding: 5px 12px;
-    font-size: 12px;
+.btn-danger:hover {
+    box-shadow: 0 5px 15px rgba(211, 47, 47, 0.5);
 }
 
-/* Формы */
+/* Forms */
 input, textarea, select {
     width: 100%;
     padding: 12px;
-    background: #f8f9fa;
-    border: 2px solid #e9ecef;
+    background: rgba(20, 30, 25, 0.9);
+    border: 1px solid #2e7d32;
     border-radius: 10px;
+    color: #e8f5e9;
     font-family: 'Inter', sans-serif;
     transition: all 0.3s;
 }
 
 input:focus, textarea:focus, select:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #4CAF50;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
 }
 
 label {
-    color: #333;
+    color: #a5d6a7;
     font-weight: 500;
     margin-bottom: 8px;
     display: block;
 }
 
-/* Таблицы */
+/* Tables */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -175,42 +205,42 @@ table {
 th {
     text-align: left;
     padding: 12px;
-    background: #f5f5f5;
-    color: #333;
+    background: rgba(46, 125, 50, 0.3);
+    color: #e8f5e9;
     font-weight: 600;
-    border-bottom: 2px solid #2e7d32;
+    border-bottom: 2px solid #4CAF50;
 }
 
 td {
     padding: 12px;
-    border-bottom: 1px solid #eee;
-    color: #555;
+    border-bottom: 1px solid rgba(76, 175, 80, 0.2);
+    color: rgba(255,255,255,0.8);
 }
 
 tr:hover td {
-    background: #f9f9f9;
+    background: rgba(46, 125, 50, 0.1);
 }
 
-/* Уведомления */
+/* Alerts */
 .alert-success {
-    background: #d4edda;
-    color: #155724;
+    background: rgba(76, 175, 80, 0.2);
+    color: #a5d6a7;
     padding: 12px 16px;
     border-radius: 10px;
     margin-bottom: 20px;
-    border-left: 4px solid #28a745;
+    border-left: 4px solid #4CAF50;
 }
 
 .alert-danger {
-    background: #f8d7da;
-    color: #721c24;
+    background: rgba(211, 47, 47, 0.2);
+    color: #ef9a9a;
     padding: 12px 16px;
     border-radius: 10px;
     margin-bottom: 20px;
-    border-left: 4px solid #dc3545;
+    border-left: 4px solid #f44336;
 }
 
-/* Пагинация */
+/* Pagination */
 .pagination {
     display: flex;
     justify-content: center;
@@ -222,10 +252,10 @@ tr:hover td {
 .pagination a, .pagination span {
     display: inline-block;
     padding: 8px 12px;
-    background: white;
-    border: 1px solid #ddd;
+    background: rgba(46, 125, 50, 0.3);
+    border: 1px solid #2e7d32;
     border-radius: 6px;
-    color: #2e7d32;
+    color: #a5d6a7;
     text-decoration: none;
     transition: all 0.3s;
 }
@@ -233,106 +263,15 @@ tr:hover td {
 .pagination a:hover {
     background: #2e7d32;
     color: white;
-    border-color: #2e7d32;
 }
 
 .pagination .active span {
     background: #2e7d32;
     color: white;
-    border-color: #2e7d32;
 }
 
-/* Сетка */
-.row {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-.col-md-3 {
-    flex: 1;
-    min-width: 200px;
-}
-
-.col-md-4 {
-    flex: 1;
-    min-width: 250px;
-}
-
-.col-md-6 {
-    flex: 1;
-    min-width: 300px;
-}
-
-/* Статистика */
-.stat-card {
-    text-align: center;
-    padding: 20px;
-}
-
-.stat-number {
-    font-size: 42px;
-    font-weight: 700;
-    color: #2e7d32;
-}
-
-.stat-label {
-    color: #666;
-    margin-top: 8px;
-    font-size: 14px;
-}
-
-/* Раскрывающиеся сообщения */
-.error-message {
-    max-width: 300px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.error-message.expanded {
-    max-width: 600px;
-}
-
-.error-message .short {
-    display: block;
-}
-
-.error-message .full {
-    display: none;
-    background: #f5f5f5;
-    padding: 10px;
-    border-radius: 8px;
-    margin-top: 8px;
-    font-size: 12px;
-    word-break: break-all;
-    white-space: normal;
-}
-
-.error-message.expanded .short {
-    display: none;
-}
-
-.error-message.expanded .full {
-    display: block;
-}
-
-.toggle-btn {
-    background: #2e7d32;
-    color: white;
-    border: none;
-    padding: 3px 8px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 11px;
-    margin-left: 10px;
-}
-
-.toggle-btn:hover {
-    background: #1b5e20;
-}
-
-/* Анимации */
-@keyframes slideDown {
+/* Animations */
+@keyframes fadeInDown {
     from {
         opacity: 0;
         transform: translateY(-30px);
@@ -343,7 +282,7 @@ tr:hover td {
     }
 }
 
-@keyframes fadeIn {
+@keyframes fadeInUp {
     from {
         opacity: 0;
         transform: translateY(20px);
@@ -355,35 +294,34 @@ tr:hover td {
 }
 
 .card {
-    animation: fadeIn 0.4s ease;
+    animation: fadeInUp 0.5s ease;
 }
 
-/* Адаптив */
+/* Responsive */
 @media (max-width: 768px) {
+    .header h1 {
+        font-size: 28px;
+    }
+    
+    .header-logo {
+        height: 50px;
+    }
+    
     .nav-buttons {
         flex-direction: column;
         align-items: center;
     }
-
+    
+    .btn-nav {
+        width: 100%;
+        text-align: center;
+    }
+    
     table, th, td {
         font-size: 12px;
     }
-
+    
     th, td {
         padding: 8px;
     }
-
-    .stat-number {
-        font-size: 28px;
-    }
-}
-
-/* Календарик */
-input[type="datetime-local"] {
-    color-scheme: light;
-}
-
-/* Кнопка выхода */
-.logout-form {
-    display: inline;
 }

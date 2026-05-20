@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Vortex - @yield('title', 'Admin Panel')</title>
+    <title>SQUAD PORTAL - @yield('title', 'Admin Panel')</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/admin-theme.css') }}">
     @stack('styles')
@@ -14,8 +14,8 @@
     <div class="admin-nav">
         <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">📊 ДАШБОРД</a>
         <a href="{{ route('admin.users') }}" class="{{ request()->routeIs('admin.users') ? 'active' : '' }}">👥 ПОЛЬЗОВАТЕЛИ</a>
-        <a href="{{ route('admin.events') }}" class="{{ request()->routeIs('admin.events') ? 'active' : '' }}">📅 СОБЫТИЯ</a>
-        <a href="{{ route('admin.tickets') }}" class="{{ request()->routeIs('admin.tickets') ? 'active' : '' }}">🎫 ЗАДАЧИ</a>
+        <a href="{{ route('admin.pending-news') }}" class="{{ request()->routeIs('admin.pending-news') ? 'active' : '' }}">📢 НА МОДЕРАЦИЮ</a>
+        <a href="{{ route('admin.servers') }}" class="{{ request()->routeIs('admin.servers') ? 'active' : '' }}">🖥️ СЕРВЕРЫ</a>
         <a href="{{ route('admin.failed-logs') }}" class="{{ request()->routeIs('admin.failed-logs') ? 'active' : '' }}">⚠️ ОШИБКИ</a>
         <a href="{{ route('home') }}">🏠 НА САЙТ</a>
     </div>

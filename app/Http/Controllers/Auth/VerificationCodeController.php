@@ -157,6 +157,7 @@ class VerificationCodeController extends Controller
 
         Log::info('Успешная регистрация', ['user_id' => $user->id, 'email' => $user->email]);
 
-        return redirect()->route('home')->with('success', 'Добро пожаловать в TSCHOOL OF DEATH!');
+        // Изменённое приветствие под SQUAD SERVER PORTAL
+        return redirect()->route('home')->with('success', 'Добро пожаловать на SQUAD SERVER PORTAL!');
     }
 }

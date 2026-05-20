@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\Event;
-use App\Models\Ticket;
+use App\Models\News;
+use App\Models\Report;
 use App\Models\FailedEmailError;
 use App\Models\FailedCodeError;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -16,27 +17,98 @@ class DashboardController extends Controller
     {
         // ========== ОСНОВНАЯ СТАТИСТИКА ==========
         $totalUsers = User::count();
-        $totalEvents = Event::count();
-        $totalTickets = Ticket::count();
+        $totalNews = News::count();
+        $totalReports = Report::count();
         $totalEmailErrors = FailedEmailError::count();
         $totalCodeErrors = FailedCodeError::count();
         $totalFailedLogs = $totalEmailErrors + $totalCodeErrors;
 
-        // ========== ВСЕГО ЗАПРОСОВ ==========
-        $successfulRegistrations = User::whereNotNull('email_verified_at')->count();
+        $openReports = Report::where('status', 'open')->count();
+        $inProgressReports = Report::where('status', 'in_progress')->count();
+        $closedReports = Report::where('status', 'closed')->count();
 
-        // ВСЕГО ПОПЫТОК = успешные + ошибки кода + ошибки почты
-        $totalRegistrationAttempts = $successfulRegistrations + $totalCodeErrors + $totalEmailErrors;
-        $totalCodeRequests = $totalCodeErrors;
-        $successfulCodeSends = $successfulRegistrations;
+        // ========== ТОЛЬКО ПОДТВЕРЖДЁННЫЕ ПОЛЬЗОВАТЕЛИ ==========
+        $confirmedUsers = User::whereNotNull('email_verified_at')->count();
 
         // ========== СТАТИСТИКА РЕГИСТРАЦИЙ ==========
-        $usersToday = User::whereDate('created_at', today())->count();
-        $usersWeek = User::whereBetween('created_at', [now()->subWeek(), now()])->count();
-        $usersMonth = User::whereBetween('created_at', [now()->subMonth(), now()])->count();
+        $usersToday = User::whereNotNull('email_verified_at')->whereDate('email_verified_at', today())->count();
+        $usersWeek = User::whereNotNull('email_verified_at')->whereBetween('email_verified_at', [now()->subWeek(), now()])->count();
+        $usersMonth = User::whereNotNull('email_verified_at')->whereBetween('email_verified_at', [now()->subMonth(), now()])->count();
 
-        $successPercent = $totalRegistrationAttempts > 0 ? round(($successfulRegistrations / $totalRegistrationAttempts) * 100, 1) : 0;
-        $errorRate = $totalRegistrationAttempts > 0 ? round(($totalFailedLogs / $totalRegistrationAttempts) * 100, 1) : 0;
+        // ========== СТАТИСТИКА ОШИБОК ==========
+        $totalAttempts = $totalUsers + $totalFailedLogs;
+        $errorRate = $totalAttempts > 0 ? round(($totalFailedLogs / $totalAttempts) * 100, 1) : 0;
+
+        // ========== ПОПУЛЯРНЫЕ СЛОВА В РЕПОРТАХ ==========
+        $allReports = Report::all();
+        $wordCount = [];
+
+        $stopWords = [
+            'и', 'в', 'на', 'с', 'по', 'к', 'у', 'о', 'за', 'из', 'от', 'до',
+            'а', 'но', 'или', 'так', 'же', 'бы', 'это', 'что', 'как', 'для',
+            'the', 'and', 'of', 'to', 'in', 'for', 'on', 'with', 'by', 'at',
+            'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has',
+            'had', 'having', 'do', 'does', 'did', 'doing', 'but', 'or', 'so',
+            'if', 'then', 'else', 'when', 'where', 'which', 'while', 'who',
+            'whom', 'this', 'that', 'these', 'those', 'some', 'any', 'no',
+            'very', 'just', 'not', 'only', 'really', 'player', 'игрок'
+        ];
+
+        foreach ($allReports as $report) {
+            $text = strtolower($report->title . ' ' . $report->description);
+            $text = preg_replace('/[^\p{L}\p{N}\s]/u', ' ', $text);
+            $words = preg_split('/\s+/', $text, -1, PREG_SPLIT_NO_EMPTY);
+
+            foreach ($words as $word) {
+                if (mb_strlen($word) < 3) continue;
+                if (in_array($word, $stopWords)) continue;
+
+                if (!isset($wordCount[$word])) $wordCount[$word] = 0;
+                $wordCount[$word]++;
+            }
+        }
+
+        arsort($wordCount);
+        $topWords = array_slice($wordCount, 0, 15, true);
+
+        // ========== РАСШИРЕННАЯ СТАТИСТИКА ==========
+
+        // Топ нарушителей (кто чаще всего попадает в репорты)
+        $topOffenders = Report::select('player_name', DB::raw('count(*) as total'))
+            ->whereNotNull('player_name')
+            ->groupBy('player_name')
+            ->orderBy('total', 'desc')
+            ->limit(10)
+            ->get();
+
+        // Топ серверов по количеству репортов
+        $topServers = Report::select('server_name', DB::raw('count(*) as total'))
+            ->whereNotNull('server_name')
+            ->groupBy('server_name')
+            ->orderBy('total', 'desc')
+            ->limit(10)
+            ->get();
+
+        // Репорты по дням (улучшенный график с 30 днями)
+        $reportsByDay30 = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $date = now()->subDays($i)->format('Y-m-d');
+            $count = Report::whereDate('created_at', $date)->count();
+            $reportsByDay30[$date] = $count;
+        }
+
+        // Динамика изменения статусов
+        $statusHistory = [
+            'open' => Report::where('status', 'open')->count(),
+            'in_progress' => Report::where('status', 'in_progress')->count(),
+            'closed' => Report::where('status', 'closed')->count(),
+        ];
+
+        // Среднее время закрытия репорта (в часах)
+        $avgCloseTime = Report::whereNotNull('updated_at')
+            ->where('status', 'closed')
+            ->selectRaw('AVG(TIMESTAMPDIFF(HOUR, created_at, updated_at)) as avg_hours')
+            ->value('avg_hours') ?? 0;
 
         // ========== СТАТИСТИКА ОШИБОК ПОЧТЫ ==========
         $smtpErrors = FailedEmailError::where('error_type', 'smtp')->count();
@@ -45,11 +117,13 @@ class DashboardController extends Controller
         $timeoutErrors = FailedEmailError::where('error_type', 'timeout')->count();
         $otherEmailErrors = FailedEmailError::where('error_type', 'unknown')->count();
 
-        $smtpPercent = $totalEmailErrors > 0 ? round(($smtpErrors / $totalEmailErrors) * 100, 1) : 0;
-        $connectionPercent = $totalEmailErrors > 0 ? round(($connectionErrors / $totalEmailErrors) * 100, 1) : 0;
-        $authPercent = $totalEmailErrors > 0 ? round(($authErrors / $totalEmailErrors) * 100, 1) : 0;
-        $timeoutPercent = $totalEmailErrors > 0 ? round(($timeoutErrors / $totalEmailErrors) * 100, 1) : 0;
-        $otherEmailPercent = $totalEmailErrors > 0 ? round(($otherEmailErrors / $totalEmailErrors) * 100, 1) : 0;
+        $totalEmailErrorsCount = $totalEmailErrors;
+
+        $smtpPercent = $totalEmailErrorsCount > 0 ? round(($smtpErrors / $totalEmailErrorsCount) * 100, 1) : 0;
+        $connectionPercent = $totalEmailErrorsCount > 0 ? round(($connectionErrors / $totalEmailErrorsCount) * 100, 1) : 0;
+        $authPercent = $totalEmailErrorsCount > 0 ? round(($authErrors / $totalEmailErrorsCount) * 100, 1) : 0;
+        $timeoutPercent = $totalEmailErrorsCount > 0 ? round(($timeoutErrors / $totalEmailErrorsCount) * 100, 1) : 0;
+        $otherEmailPercent = $totalEmailErrorsCount > 0 ? round(($otherEmailErrors / $totalEmailErrorsCount) * 100, 1) : 0;
 
         // ========== СТАТИСТИКА ОШИБОК КОДА ==========
         $invalidCodeErrors = FailedCodeError::where('error_type', 'invalid')->count();
@@ -57,21 +131,22 @@ class DashboardController extends Controller
         $wrongEmailErrors = FailedCodeError::where('error_type', 'wrong_email')->count();
         $formatCodeErrors = FailedCodeError::where('error_type', 'format')->count();
 
-        $invalidCodePercent = $totalCodeErrors > 0 ? round(($invalidCodeErrors / $totalCodeErrors) * 100, 1) : 0;
-        $expiredCodePercent = $totalCodeErrors > 0 ? round(($expiredCodeErrors / $totalCodeErrors) * 100, 1) : 0;
-        $wrongEmailPercent = $totalCodeErrors > 0 ? round(($wrongEmailErrors / $totalCodeErrors) * 100, 1) : 0;
-        $formatCodePercent = $totalCodeErrors > 0 ? round(($formatCodeErrors / $totalCodeErrors) * 100, 1) : 0;
+        $totalCodeErrorsCount = $totalCodeErrors;
 
-        $codeErrorsPercent = $totalCodeRequests > 0 ? round(($totalCodeErrors / $totalCodeRequests) * 100, 1) : 0;
+        $invalidCodePercent = $totalCodeErrorsCount > 0 ? round(($invalidCodeErrors / $totalCodeErrorsCount) * 100, 1) : 0;
+        $expiredCodePercent = $totalCodeErrorsCount > 0 ? round(($expiredCodeErrors / $totalCodeErrorsCount) * 100, 1) : 0;
+        $wrongEmailPercent = $totalCodeErrorsCount > 0 ? round(($wrongEmailErrors / $totalCodeErrorsCount) * 100, 1) : 0;
+        $formatCodePercent = $totalCodeErrorsCount > 0 ? round(($formatCodeErrors / $totalCodeErrorsCount) * 100, 1) : 0;
 
         return view('admin.dashboard', compact(
-            'totalUsers', 'totalEvents', 'totalTickets', 'totalFailedLogs',
-            'totalRegistrationAttempts', 'totalCodeRequests', 'successfulCodeSends',
-            'usersToday', 'usersWeek', 'usersMonth',
-            'successfulRegistrations', 'successPercent', 'errorRate',
+            'totalUsers', 'totalNews', 'totalReports', 'totalFailedLogs',
+            'openReports', 'inProgressReports', 'closedReports',
+            'confirmedUsers', 'usersToday', 'usersWeek', 'usersMonth', 'errorRate',
+            'topWords',
+            'topOffenders', 'topServers', 'reportsByDay30', 'statusHistory', 'avgCloseTime',
             'smtpErrors', 'connectionErrors', 'authErrors', 'timeoutErrors', 'otherEmailErrors',
             'smtpPercent', 'connectionPercent', 'authPercent', 'timeoutPercent', 'otherEmailPercent',
-            'totalEmailErrors', 'totalCodeErrors', 'codeErrorsPercent',
+            'totalEmailErrorsCount', 'totalCodeErrorsCount',
             'invalidCodeErrors', 'expiredCodeErrors', 'wrongEmailErrors', 'formatCodeErrors',
             'invalidCodePercent', 'expiredCodePercent', 'wrongEmailPercent', 'formatCodePercent'
         ));
