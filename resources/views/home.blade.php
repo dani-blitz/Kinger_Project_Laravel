@@ -31,12 +31,9 @@
         <div class="card-body">
             @forelse($reports as $report)
                 <p>🔴 {{ $report->player_name }} -
-                    @if($report->status == 'open')
-                        🟢 Открыт
-                    @elseif($report->status == 'in_progress')
-                        🟡 В работе
-                    @else
-                        ⚫ Закрыт
+                    @if($report->status == 'open') 🟢 Открыт
+                    @elseif($report->status == 'in_progress') 🟡 В работе
+                    @else ⚫ Закрыт
                     @endif
                     - {{ $report->created_at->diffForHumans() }}
                 </p>
