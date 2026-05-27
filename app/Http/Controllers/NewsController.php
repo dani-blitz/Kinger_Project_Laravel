@@ -8,26 +8,25 @@ use Illuminate\Support\Facades\Auth;
 
 class NewsController extends Controller
 {
-    // Показываем только опубликованные новости для всех
     public function index()
     {
-        if (Auth::check() && Auth::user()->is_admin) {
-            // Админы видят все новости
+        if (Auth::check() && Auth::user()->isAdmin()) {
             $news = News::orderBy('id', 'desc')->paginate(10);
         } else {
-            // Обычные пользователи видят только опубликованные
             $news = News::where('status', 'approved')->orderBy('id', 'desc')->paginate(10);
         }
         return view('news.index', compact('news'));
     }
 
-    // Форма создания новости (доступна всем)
     public function create()
     {
+        // Все авторизованные пользователи могут предлагать новости
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
         return view('news.create');
     }
 
-    // Сохранение новости (статус pending для обычных, approved для админов)
     public function store(Request $request)
     {
         $request->validate([
@@ -37,7 +36,8 @@ class NewsController extends Controller
             'end_time' => 'required|date|after:start_time',
         ]);
 
-        $status = Auth::user()->is_admin ? 'approved' : 'pending';
+        // Только администраторы (admin и super_admin) могут публиковать сразу
+        $status = Auth::user()->isAdmin() ? 'approved' : 'pending';
 
         News::create([
             'title' => $request->title,
@@ -48,36 +48,32 @@ class NewsController extends Controller
             'status' => $status,
         ]);
 
-        $message = Auth::user()->is_admin
+        $message = Auth::user()->isAdmin()
             ? 'Новость опубликована'
             : 'Новость отправлена на модерацию';
 
         return redirect()->route('news.index')->with('success', $message);
     }
 
-    // Просмотр новости
     public function show(News $news)
     {
-        // Проверяем, может ли пользователь видеть новость
-        if ($news->status !== 'approved' && !(Auth::check() && Auth::user()->is_admin)) {
+        if ($news->status !== 'approved' && !Auth::user()?->isAdmin()) {
             abort(404);
         }
         return view('news.show', compact('news'));
     }
 
-    // Редактирование (только для админов)
     public function edit(News $news)
     {
-        if (!Auth::user()->is_admin) {
+        if (!Auth::user()->isAdmin()) {
             abort(403);
         }
         return view('news.edit', compact('news'));
     }
 
-    // Обновление (только для админов)
     public function update(Request $request, News $news)
     {
-        if (!Auth::user()->is_admin) {
+        if (!Auth::user()->isAdmin()) {
             abort(403);
         }
 
@@ -92,10 +88,9 @@ class NewsController extends Controller
         return redirect()->route('news.index')->with('success', 'Новость обновлена');
     }
 
-    // Удаление (только для админов)
     public function destroy(News $news)
     {
-        if (!Auth::user()->is_admin) {
+        if (!Auth::user()->isAdmin()) {
             abort(403);
         }
         $news->delete();
@@ -104,20 +99,18 @@ class NewsController extends Controller
 
     // ========== АДМИНСКИЕ МЕТОДЫ ==========
 
-    // Показать новости на модерации
     public function pending()
     {
-        if (!Auth::user()->is_admin) {
+        if (!Auth::user()->isAdmin()) {
             abort(403);
         }
         $pendingNews = News::where('status', 'pending')->orderBy('id', 'desc')->get();
         return view('admin.pending-news', compact('pendingNews'));
     }
 
-    // Одобрить новость
     public function approve($id)
     {
-        if (!Auth::user()->is_admin) {
+        if (!Auth::user()->isAdmin()) {
             abort(403);
         }
 
@@ -130,10 +123,9 @@ class NewsController extends Controller
         return redirect()->back()->with('success', 'Новость одобрена');
     }
 
-    // Отклонить новость
     public function reject(Request $request, $id)
     {
-        if (!Auth::user()->is_admin) {
+        if (!Auth::user()->isAdmin()) {
             abort(403);
         }
 

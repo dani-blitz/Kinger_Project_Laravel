@@ -86,17 +86,11 @@
                 <div class="card-body">
                     <table style="width: 100%;">
                         <thead>
-                        <tr>
-                            <th>Игрок</th>
-                            <th>Количество репортов</th>
-                        </tr>
+                        <tr><th>Игрок</th><th>Количество репортов</th></tr>
                         </thead>
                         <tbody>
                         @foreach($topOffenders ?? [] as $offender)
-                            <tr>
-                                <td>{{ $offender->player_name }}</td>
-                                <td>{{ $offender->total }}</td>
-                            </tr>
+                            <tr><td>{{ $offender->player_name }}</td><td>{{ $offender->total }}</td></tr>
                         @endforeach
                         </tbody>
                     </table>
@@ -108,18 +102,10 @@
                 <div class="card-header" style="background: #2196F3;">🖥️ ТОП СЕРВЕРОВ ПО РЕПОРТАМ</div>
                 <div class="card-body">
                     <table style="width: 100%;">
-                        <thead>
-                        <tr>
-                            <th>Сервер</th>
-                            <th>Репортов</th>
-                        </tr>
-                        </thead>
+                        <thead><tr><th>Сервер</th><th>Репортов</th></tr></thead>
                         <tbody>
                         @foreach($topServers ?? [] as $server)
-                            <tr>
-                                <td>{{ $server->server_name }}</td>
-                                <td>{{ $server->total }}</td>
-                            </tr>
+                            <tr><td>{{ $server->server_name }}</td><td>{{ $server->total }}</td></tr>
                         @endforeach
                         </tbody>
                     </table>

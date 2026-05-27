@@ -73,7 +73,7 @@ class DashboardController extends Controller
 
         // ========== РАСШИРЕННАЯ СТАТИСТИКА ==========
 
-        // Топ нарушителей (кто чаще всего попадает в репорты)
+        // Топ нарушителей
         $topOffenders = Report::select('player_name', DB::raw('count(*) as total'))
             ->whereNotNull('player_name')
             ->groupBy('player_name')
@@ -89,7 +89,7 @@ class DashboardController extends Controller
             ->limit(10)
             ->get();
 
-        // Репорты по дням (улучшенный график с 30 днями)
+        // Репорты по дням (30 дней)
         $reportsByDay30 = [];
         for ($i = 29; $i >= 0; $i--) {
             $date = now()->subDays($i)->format('Y-m-d');
@@ -109,6 +109,9 @@ class DashboardController extends Controller
             ->where('status', 'closed')
             ->selectRaw('AVG(TIMESTAMPDIFF(HOUR, created_at, updated_at)) as avg_hours')
             ->value('avg_hours') ?? 0;
+
+        // ========== СПИСОК РЕПОРТОВ ДЛЯ ТАБЛИЦЫ ==========
+        $reports = Report::orderBy('id', 'desc')->paginate(20);
 
         // ========== СТАТИСТИКА ОШИБОК ПОЧТЫ ==========
         $smtpErrors = FailedEmailError::where('error_type', 'smtp')->count();
@@ -138,6 +141,11 @@ class DashboardController extends Controller
         $wrongEmailPercent = $totalCodeErrorsCount > 0 ? round(($wrongEmailErrors / $totalCodeErrorsCount) * 100, 1) : 0;
         $formatCodePercent = $totalCodeErrorsCount > 0 ? round(($formatCodeErrors / $totalCodeErrorsCount) * 100, 1) : 0;
 
+        // ========== ПРАВА ДОСТУПА ==========
+        $canViewReports = auth()->user()->canDo('reports.view_all');
+        $canViewUsers = auth()->user()->canDo('users.view');
+        $canViewNews = auth()->user()->canDo('news.view');
+
         return view('admin.dashboard', compact(
             'totalUsers', 'totalNews', 'totalReports', 'totalFailedLogs',
             'openReports', 'inProgressReports', 'closedReports',
@@ -148,7 +156,9 @@ class DashboardController extends Controller
             'smtpPercent', 'connectionPercent', 'authPercent', 'timeoutPercent', 'otherEmailPercent',
             'totalEmailErrorsCount', 'totalCodeErrorsCount',
             'invalidCodeErrors', 'expiredCodeErrors', 'wrongEmailErrors', 'formatCodeErrors',
-            'invalidCodePercent', 'expiredCodePercent', 'wrongEmailPercent', 'formatCodePercent'
+            'invalidCodePercent', 'expiredCodePercent', 'wrongEmailPercent', 'formatCodePercent',
+            'canViewReports', 'canViewUsers', 'canViewNews',
+            'reports'
         ));
     }
 }

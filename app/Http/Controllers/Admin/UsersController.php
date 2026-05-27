@@ -8,18 +8,36 @@ use Illuminate\Http\Request;
 
 class UsersController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::paginate(20);
-        return view('admin.users', compact('users'));
-    }
+        $query = User::query();
 
-    public function makeAdmin($id)
-    {
-        $user = User::findOrFail($id);
-        $user->is_admin = true;
-        $user->save();
+        // Поиск по Steam ID
+        if ($request->filled('steam_id')) {
+            $query->where('steam_id', 'like', '%' . $request->steam_id . '%');
+        }
 
-        return redirect()->route('admin.users')->with('success', "Пользователь {$user->name} теперь админ");
+        // Поиск по имени
+        if ($request->filled('name')) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        // Поиск по email
+        if ($request->filled('email')) {
+            $query->where('email', 'like', '%' . $request->email . '%');
+        }
+
+        // Сортировка
+        $sortField = $request->get('sort', 'id');
+        $sortDirection = $request->get('direction', 'desc');
+
+        $allowedSorts = ['id', 'name', 'email', 'created_at', 'role'];
+        if (in_array($sortField, $allowedSorts)) {
+            $query->orderBy($sortField, $sortDirection);
+        }
+
+        $users = $query->paginate(20)->withQueryString();
+
+        return view('admin.users', compact('users', 'sortField', 'sortDirection'));
     }
 }

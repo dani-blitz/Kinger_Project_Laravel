@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Report;
+use App\Models\ReportComment;
 use Illuminate\Http\Request;
 
 class ReportsController extends Controller
@@ -27,5 +28,28 @@ class ReportsController extends Controller
         $report = Report::findOrFail($id);
         $report->delete();
         return redirect()->back()->with('success', 'Репорт удалён');
+    }
+
+    // Новый метод для закрытия репорта с итогом
+    public function closeWithResolution(Request $request, $id)
+    {
+        $report = Report::findOrFail($id);
+
+        $request->validate([
+            'resolution' => 'required|string|min:5|max:1000',
+        ]);
+
+        $report->status = 'closed';
+        $report->save();
+
+        // Добавляем комментарий с решением
+        ReportComment::create([
+            'report_id' => $report->id,
+            'user_id' => auth()->id(),
+            'comment' => "✅ РЕШЕНИЕ: " . $request->resolution,
+            'type' => 'public'
+        ]);
+
+        return redirect()->back()->with('success', 'Репорт закрыт с решением: ' . $request->resolution);
     }
 }

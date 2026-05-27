@@ -12,15 +12,45 @@
 <body class="admin-theme">
 <div class="admin-header">
     <div class="admin-nav">
-        <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">📊 ДАШБОРД</a>
-        <a href="{{ route('admin.users') }}" class="{{ request()->routeIs('admin.users') ? 'active' : '' }}">👥 ПОЛЬЗОВАТЕЛИ</a>
-        <a href="{{ route('admin.pending-news') }}" class="{{ request()->routeIs('admin.pending-news') ? 'active' : '' }}">📢 НА МОДЕРАЦИЮ</a>
-        <a href="{{ route('admin.servers') }}" class="{{ request()->routeIs('admin.servers') ? 'active' : '' }}">🖥️ СЕРВЕРЫ</a>
-        <a href="{{ route('admin.failed-logs') }}" class="{{ request()->routeIs('admin.failed-logs') ? 'active' : '' }}">⚠️ ОШИБКИ</a>
-        <a href="{{ route('home') }}">🏠 НА САЙТ</a>
+        <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+            📊 ДАШБОРД
+        </a>
+
+        @if(auth()->user()->canDo('users.view'))
+            <a href="{{ route('admin.users') }}" class="{{ request()->routeIs('admin.users') ? 'active' : '' }}">
+                👥 ПОЛЬЗОВАТЕЛИ
+            </a>
+        @endif
+
+        @if(auth()->user()->canDo('news.moderate'))
+            <a href="{{ route('admin.pending-news') }}" class="{{ request()->routeIs('admin.pending-news') ? 'active' : '' }}">
+                📢 НА МОДЕРАЦИЮ
+            </a>
+        @endif
+
+        @if(auth()->user()->canDo('users.manage_roles'))
+            <a href="{{ route('admin.users.manage-roles') }}" class="{{ request()->routeIs('admin.users.manage-roles') ? 'active' : '' }}">
+                👑 УПРАВЛЕНИЕ РОЛЯМИ
+            </a>
+        @endif
+
+        <a href="{{ route('admin.failed-logs') }}" class="{{ request()->routeIs('admin.failed-logs') ? 'active' : '' }}">
+            ⚠️ ОШИБКИ
+        </a>
+
+        <a href="{{ route('home') }}">
+            🏠 НА САЙТ
+        </a>
     </div>
     <div class="admin-user">
         <span>👋 {{ Auth::user()->name ?? 'Admin' }}</span>
+        <span style="font-size: 12px; background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 10px;">
+            @if(Auth::user()->role == 'super_admin') ⭐ SUPER ADMIN
+            @elseif(Auth::user()->role == 'admin') 👑 ADMIN
+            @elseif(Auth::user()->role == 'moderator') 🛡️ MODERATOR
+            @else 👤 USER
+            @endif
+        </span>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" class="logout-btn">🚪 ВЫХОД</button>

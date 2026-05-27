@@ -3,24 +3,37 @@
 namespace App\Http\Controllers;
 
 use App\Models\Report;
-use Illuminate\Http\Request;
 use App\Models\ReportComment;
+use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
     public function index()
     {
-        $reports = Report::where('user_id', auth()->id())->orderBy('id', 'desc')->paginate(10);
+        if (auth()->user()->isModerator()) {
+            // Модераторы, админы, супер-админы видят все репорты
+            $reports = Report::orderBy('id', 'desc')->paginate(10);
+        } else {
+            // Обычные пользователи видят только свои репорты
+            $reports = Report::where('user_id', auth()->id())->orderBy('id', 'desc')->paginate(10);
+        }
         return view('reports.index', compact('reports'));
     }
 
     public function create()
     {
+        if (!auth()->user()->hasRole('user')) {
+            abort(403, 'Только обычные пользователи могут создавать репорты');
+        }
         return view('reports.create');
     }
 
     public function store(Request $request)
     {
+        if (!auth()->user()->hasRole('user')) {
+            abort(403, 'Только обычные пользователи могут создавать репорты');
+        }
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -48,7 +61,7 @@ class ReportController extends Controller
 
     public function show(Report $report)
     {
-        if ($report->user_id !== auth()->id() && !auth()->user()->is_admin) {
+        if ($report->user_id !== auth()->id() && !auth()->user()->isModerator()) {
             abort(403);
         }
         return view('reports.show', compact('report'));
@@ -56,7 +69,7 @@ class ReportController extends Controller
 
     public function destroy(Report $report)
     {
-        if ($report->user_id !== auth()->id() && !auth()->user()->is_admin) {
+        if ($report->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
             abort(403);
         }
         $report->delete();
@@ -65,7 +78,7 @@ class ReportController extends Controller
 
     public function addComment(Request $request, Report $report)
     {
-        if ($report->user_id !== auth()->id() && !auth()->user()->is_admin) {
+        if ($report->user_id !== auth()->id() && !auth()->user()->isModerator()) {
             abort(403);
         }
 
@@ -74,7 +87,7 @@ class ReportController extends Controller
             'type' => 'in:public,private'
         ]);
 
-        $comment = ReportComment::create([
+        ReportComment::create([
             'report_id' => $report->id,
             'user_id' => auth()->id(),
             'comment' => $request->comment,
@@ -82,5 +95,29 @@ class ReportController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Комментарий добавлен');
+    }
+
+    // Новый метод для закрытия репорта с итогом (только для модераторов и выше)
+    public function closeWithResolution(Request $request, Report $report)
+    {
+        if (!auth()->user()->isModerator()) {
+            abort(403, 'Только модераторы могут закрывать репорты');
+        }
+
+        $request->validate([
+            'resolution' => 'required|string|min:5|max:1000',
+        ]);
+
+        $report->status = 'closed';
+        $report->save();
+
+        ReportComment::create([
+            'report_id' => $report->id,
+            'user_id' => auth()->id(),
+            'comment' => "✅ РЕШЕНИЕ: " . $request->resolution,
+            'type' => 'public'
+        ]);
+
+        return redirect()->route('reports.index')->with('success', 'Репорт закрыт с решением');
     }
 }

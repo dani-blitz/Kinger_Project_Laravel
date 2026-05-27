@@ -1,15 +1,19 @@
 @extends('layouts.app')
 
-@section('title', 'Новости сервера')
+@section('title', 'Новости')
 
-@section('header', '📢 НОВОСТИ СЕРВЕРА')
+@section('header', '📢 НОВОСТИ')
 
 @section('content')
     <div class="card">
         <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
             <span>📰 Все новости</span>
             @auth
-                <a href="{{ route('news.create') }}" class="btn">➕ ДОБАВИТЬ НОВОСТЬ</a>
+                @if(auth()->user()->canDo('news.create') || auth()->user()->canDo('news.publish_direct'))
+                    <a href="{{ route('news.create') }}" class="btn">➕ ДОБАВИТЬ НОВОСТЬ</a>
+                @else
+                    <a href="{{ route('news.create') }}" class="btn">📝 ПРЕДЛОЖИТЬ НОВОСТЬ</a>
+                @endif
             @endauth
         </div>
         <div class="card-body">
@@ -19,9 +23,10 @@
                         <h3>{{ $item->title }}</h3>
                         <p>{{ $item->description }}</p>
                         <small>📅 {{ $item->created_at->format('d.m.Y H:i') }}</small>
+                        <p><small>👤 Автор: {{ $item->user->name ?? 'Неизвестен' }}</small></p>
 
                         @auth
-                            @if(Auth::user()->is_admin)
+                            @if(auth()->user()->isAdmin())
                                 <div style="margin-top: 10px;">
                                     @if($item->status == 'pending')
                                         <span style="color: #ff9800;">⏳ На модерации</span>
