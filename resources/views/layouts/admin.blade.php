@@ -12,8 +12,11 @@
 <body class="admin-theme">
 <div class="admin-header">
     <div class="admin-nav">
-        <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-            📊 ДАШБОРД
+        <a href="{{ route('admin.reports-stats') }}" class="{{ request()->routeIs('admin.reports-stats') ? 'active' : '' }}">
+            📊 РЕПОРТЫ
+        </a>
+        <a href="{{ route('admin.errors-stats') }}" class="{{ request()->routeIs('admin.errors-stats') ? 'active' : '' }}">
+            ⚠️ ОШИБКИ
         </a>
 
         @if(auth()->user()->canDo('users.view'))
@@ -35,7 +38,7 @@
         @endif
 
         <a href="{{ route('admin.failed-logs') }}" class="{{ request()->routeIs('admin.failed-logs') ? 'active' : '' }}">
-            ⚠️ ОШИБКИ
+            📋 ЛОГИ ОШИБОК
         </a>
 
         <a href="{{ route('home') }}">

@@ -24,8 +24,11 @@
         <a href="{{ route('servers.index') }}" class="btn-nav">🖥️ СЕРВЕРЫ</a>
 
         @auth
-            @if(Auth::user()->is_admin)
+            @if(auth()->user()->isAdmin())
                 <a href="{{ route('admin.dashboard') }}" class="btn-nav admin-nav">👑 АДМИНКА</a>
+            @endif
+            @if(auth()->user()->isModerator() && !auth()->user()->isAdmin())
+                <a href="{{ route('moderator.dashboard') }}" class="btn-nav" style="border-color: #2196F3;">🛡️ ПАНЕЛЬ МОДЕРАТОРА</a>
             @endif
             <form method="POST" action="{{ route('logout') }}" class="logout-form">
                 @csrf
@@ -51,6 +54,15 @@
     @endif
 
     @yield('content')
+
+    @auth
+        @if(auth()->user()->isModerator() && !auth()->user()->isAdmin())
+            <a href="{{ route('moderator.dashboard') }}" class="btn-nav admin-nav">🛡️ ПАНЕЛЬ МОДЕРАТОРА</a>
+        @endif
+        @if(auth()->user()->isAdmin())
+            <a href="{{ route('admin.dashboard') }}" class="btn-nav admin-nav">👑 АДМИНКА</a>
+        @endif
+    @endauth
 </div>
 </body>
 </html>

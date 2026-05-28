@@ -21,7 +21,6 @@ class RoleController extends Controller
             abort(403, 'Только супер-админ может изменять роли');
         }
 
-        // Запрещаем изменять роль самому себе
         if ($user->id === auth()->id()) {
             return redirect()->back()->with('error', '❌ Вы не можете изменить свою собственную роль');
         }
@@ -30,7 +29,6 @@ class RoleController extends Controller
             'role' => 'required|in:user,moderator,admin,super_admin'
         ]);
 
-        // Запрещаем создавать второго супер-админа
         if ($request->role === 'super_admin') {
             $existingSuperAdmin = User::where('role', 'super_admin')->first();
             if ($existingSuperAdmin && $existingSuperAdmin->id !== $user->id) {
@@ -50,25 +48,33 @@ class RoleController extends Controller
             abort(403, 'Только супер-админ может изменять права');
         }
 
-        // Запрещаем изменять права самому себе
         if ($user->id === auth()->id()) {
             return redirect()->back()->with('error', '❌ Вы не можете изменять свои собственные права');
         }
 
-        $permissions = $request->input('permissions', []);
+        // Все возможные права (список должен совпадать с чекбоксами в представлении)
+        $allPermissions = [
+            'reports.view_all',
+            'reports.comment_all',
+            'reports.change_status',
+            'reports.delete',
+            'news.create',
+            'news.publish_direct',
+            'news.moderate',
+            'news.delete',
+            'users.view',
+            'users.edit',
+            'servers.manage',
+        ];
 
-        // Удаляем старые права
-        UserPermission::where('user_id', $user->id)->delete();
+        $submittedPermissions = $request->input('permissions', []);
 
-        // Добавляем новые
-        foreach ($permissions as $permission => $value) {
-            if ($value == '1' || $value === true) {
-                UserPermission::create([
-                    'user_id' => $user->id,
-                    'permission' => $permission,
-                    'value' => true,
-                ]);
-            }
+        foreach ($allPermissions as $perm) {
+            $value = isset($submittedPermissions[$perm]) ? true : false;
+            UserPermission::updateOrCreate(
+                ['user_id' => $user->id, 'permission' => $perm],
+                ['value' => $value]
+            );
         }
 
         return redirect()->back()->with('success', "✅ Права пользователя {$user->name} обновлены");

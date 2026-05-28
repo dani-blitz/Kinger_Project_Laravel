@@ -67,18 +67,25 @@ Route::middleware(['auth'])->group(function () {
 
 // ========== АДМИН-ПАНЕЛЬ ==========
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // Главный дашборд (перенаправление на статистику репортов)
+    Route::get('/dashboard', function () {
+        return redirect()->route('admin.reports-stats');
+    })->name('dashboard');
+
+    // Статистика репортов
+    Route::get('/reports-stats', [App\Http\Controllers\Admin\StatsController::class, 'reportsStats'])->name('reports-stats');
+
+    // Статистика ошибок
+    Route::get('/errors-stats', [App\Http\Controllers\Admin\StatsController::class, 'errorsStats'])->name('errors-stats');
+
+    // Остальные админ-маршруты (пользователи, роли, логи ошибок, модерация новостей)
     Route::get('/users', [UsersController::class, 'index'])->name('users');
     Route::get('/failed-logs', [FailedLogsController::class, 'index'])->name('failed-logs');
     Route::get('/pending-news', [NewsController::class, 'pending'])->name('pending-news');
     Route::post('/news/{id}/approve', [NewsController::class, 'approve'])->name('news.approve');
     Route::post('/news/{id}/reject', [NewsController::class, 'reject'])->name('news.reject');
 
-    // Управление репортами в админке
-    Route::post('/reports/{id}/update', [ReportsController::class, 'update'])->name('reports.update');
-    Route::delete('/reports/{id}', [ReportsController::class, 'destroy'])->name('reports.destroy');
-
-    // Управление ролями (только для super_admin)
+    // Управление ролями (только super_admin)
     Route::middleware(['check.permission:users.manage_roles'])->group(function () {
         Route::get('/users/manage-roles', [RoleController::class, 'index'])->name('users.manage-roles');
         Route::post('/users/{user}/update-role', [RoleController::class, 'updateRole'])->name('users.update-role');
@@ -100,4 +107,9 @@ Route::get('/test-queue', function () {
         Log::error('❌ Ошибка RabbitMQ: ' . $e->getMessage());
         return '❌ Ошибка: ' . $e->getMessage();
     }
+});
+
+// ========== ПАНЕЛЬ МОДЕРАТОРА ==========
+Route::middleware(['auth', 'moderator'])->prefix('moderator')->name('moderator.')->group(function () {
+    Route::get('/dashboard', [App\Http\Controllers\Moderator\DashboardController::class, 'index'])->name('dashboard');
 });
