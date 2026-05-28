@@ -10,11 +10,9 @@ class ReportController extends Controller
 {
     public function index()
     {
-        if (auth()->user()->isModerator()) {
-            // Модераторы, админы, супер-админы видят все репорты
+        if (auth()->user()->canDo('reports.view_all')) {
             $reports = Report::orderBy('id', 'desc')->paginate(10);
         } else {
-            // Обычные пользователи видят только свои репорты
             $reports = Report::where('user_id', auth()->id())->orderBy('id', 'desc')->paginate(10);
         }
         return view('reports.index', compact('reports'));
@@ -61,7 +59,7 @@ class ReportController extends Controller
 
     public function show(Report $report)
     {
-        if ($report->user_id !== auth()->id() && !auth()->user()->isModerator()) {
+        if ($report->user_id !== auth()->id() && !auth()->user()->canDo('reports.view_all')) {
             abort(403);
         }
         return view('reports.show', compact('report'));
@@ -69,7 +67,7 @@ class ReportController extends Controller
 
     public function destroy(Report $report)
     {
-        if ($report->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
+        if ($report->user_id !== auth()->id() && !auth()->user()->canDo('reports.delete')) {
             abort(403);
         }
         $report->delete();
@@ -78,7 +76,8 @@ class ReportController extends Controller
 
     public function addComment(Request $request, Report $report)
     {
-        if ($report->user_id !== auth()->id() && !auth()->user()->isModerator()) {
+        // Владелец всегда может комментировать свой репорт
+        if ($report->user_id !== auth()->id() && !auth()->user()->canDo('reports.comment_all')) {
             abort(403);
         }
 
@@ -97,11 +96,10 @@ class ReportController extends Controller
         return redirect()->back()->with('success', 'Комментарий добавлен');
     }
 
-    // Новый метод для закрытия репорта с итогом (только для модераторов и выше)
     public function closeWithResolution(Request $request, Report $report)
     {
-        if (!auth()->user()->isModerator()) {
-            abort(403, 'Только модераторы могут закрывать репорты');
+        if (!auth()->user()->canDo('reports.change_status')) {
+            abort(403, 'Нет права менять статус репорта');
         }
 
         $request->validate([

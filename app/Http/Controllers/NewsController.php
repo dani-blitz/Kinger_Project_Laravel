@@ -10,7 +10,7 @@ class NewsController extends Controller
 {
     public function index()
     {
-        if (Auth::check() && Auth::user()->isAdmin()) {
+        if (Auth::check() && Auth::user()->canDo('news.moderate')) {
             $news = News::orderBy('id', 'desc')->paginate(10);
         } else {
             $news = News::where('status', 'approved')->orderBy('id', 'desc')->paginate(10);
@@ -20,7 +20,6 @@ class NewsController extends Controller
 
     public function create()
     {
-        // Все авторизованные пользователи могут предлагать новости
         if (!Auth::check()) {
             return redirect()->route('login');
         }
@@ -36,8 +35,7 @@ class NewsController extends Controller
             'end_time' => 'required|date|after:start_time',
         ]);
 
-        // Только администраторы (admin и super_admin) могут публиковать сразу
-        $status = Auth::user()->isAdmin() ? 'approved' : 'pending';
+        $status = Auth::user()->canDo('news.publish_direct') ? 'approved' : 'pending';
 
         News::create([
             'title' => $request->title,
@@ -48,16 +46,13 @@ class NewsController extends Controller
             'status' => $status,
         ]);
 
-        $message = Auth::user()->isAdmin()
-            ? 'Новость опубликована'
-            : 'Новость отправлена на модерацию';
-
+        $message = $status == 'approved' ? 'Новость опубликована' : 'Новость отправлена на модерацию';
         return redirect()->route('news.index')->with('success', $message);
     }
 
     public function show(News $news)
     {
-        if ($news->status !== 'approved' && !Auth::user()?->isAdmin()) {
+        if ($news->status !== 'approved' && !Auth::user()?->canDo('news.moderate')) {
             abort(404);
         }
         return view('news.show', compact('news'));
@@ -65,7 +60,7 @@ class NewsController extends Controller
 
     public function edit(News $news)
     {
-        if (!Auth::user()->isAdmin()) {
+        if (!Auth::user()->canDo('news.moderate')) {
             abort(403);
         }
         return view('news.edit', compact('news'));
@@ -73,7 +68,7 @@ class NewsController extends Controller
 
     public function update(Request $request, News $news)
     {
-        if (!Auth::user()->isAdmin()) {
+        if (!Auth::user()->canDo('news.moderate')) {
             abort(403);
         }
 
@@ -90,18 +85,16 @@ class NewsController extends Controller
 
     public function destroy(News $news)
     {
-        if (!Auth::user()->isAdmin()) {
+        if (!Auth::user()->canDo('news.delete')) {
             abort(403);
         }
         $news->delete();
         return redirect()->route('news.index')->with('success', 'Новость удалена');
     }
 
-    // ========== АДМИНСКИЕ МЕТОДЫ ==========
-
     public function pending()
     {
-        if (!Auth::user()->isAdmin()) {
+        if (!Auth::user()->canDo('news.moderate')) {
             abort(403);
         }
         $pendingNews = News::where('status', 'pending')->orderBy('id', 'desc')->get();
@@ -110,32 +103,28 @@ class NewsController extends Controller
 
     public function approve($id)
     {
-        if (!Auth::user()->isAdmin()) {
+        if (!Auth::user()->canDo('news.moderate')) {
             abort(403);
         }
-
         $news = News::findOrFail($id);
         $news->status = 'approved';
         $news->moderated_by = auth()->id();
         $news->moderated_at = now();
         $news->save();
-
         return redirect()->back()->with('success', 'Новость одобрена');
     }
 
     public function reject(Request $request, $id)
     {
-        if (!Auth::user()->isAdmin()) {
+        if (!Auth::user()->canDo('news.moderate')) {
             abort(403);
         }
-
         $news = News::findOrFail($id);
         $news->status = 'rejected';
         $news->moderated_by = auth()->id();
         $news->moderated_at = now();
         $news->moderation_comment = $request->comment;
         $news->save();
-
         return redirect()->back()->with('success', 'Новость отклонена');
     }
 }

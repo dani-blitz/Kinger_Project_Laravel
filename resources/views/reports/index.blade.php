@@ -22,24 +22,18 @@
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <h3>👤 {{ $report->player_name }}</h3>
                                 <span>
-                                @if($report->priority == 'low')
-                                        <span style="color: #28a745;">📗 Низкий</span>
-                                    @elseif($report->priority == 'medium')
-                                        <span style="color: #ffc107;">📙 Средний</span>
-                                    @else
-                                        <span style="color: #dc3545;">📕 Высокий</span>
+                                @if($report->priority == 'low') <span style="color: #28a745;">📗 Низкий</span>
+                                    @elseif($report->priority == 'medium') <span style="color: #ffc107;">📙 Средний</span>
+                                    @else <span style="color: #dc3545;">📕 Высокий</span>
                                     @endif
                             </span>
                             </div>
                             <p><strong>Тема:</strong> {{ $report->title }}</p>
                             <p><strong>Описание:</strong> {{ Str::limit($report->description, 100) }}</p>
                             <p><strong>Статус:</strong>
-                                @if($report->status == 'open')
-                                    <span style="color: #28a745;">🟢 Открыт</span>
-                                @elseif($report->status == 'in_progress')
-                                    <span style="color: #ffc107;">🟡 В работе</span>
-                                @else
-                                    <span style="color: #6c757d;">⚫ Закрыт</span>
+                                @if($report->status == 'open') <span style="color: #28a745;">🟢 Открыт</span>
+                                @elseif($report->status == 'in_progress') <span style="color: #ffc107;">🟡 В работе</span>
+                                @else <span style="color: #6c757d;">⚫ Закрыт</span>
                                 @endif
                             </p>
                             <small>📅 {{ $report->created_at->format('d.m.Y H:i') }}</small>
@@ -53,7 +47,7 @@
                                     </button>
                                 @endif
 
-                                @if($report->user_id === auth()->id() || auth()->user()->isAdmin())
+                                @if($report->user_id === auth()->id() || auth()->user()->canDo('reports.delete'))
                                     <form method="POST" action="{{ route('reports.destroy', $report) }}" style="display: inline;">
                                         @csrf
                                         @method('DELETE')

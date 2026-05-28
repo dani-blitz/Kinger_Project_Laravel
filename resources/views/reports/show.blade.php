@@ -36,6 +36,14 @@
             </p>
             <p><strong>📅 Создан:</strong> {{ $report->created_at->format('d.m.Y H:i') }}</p>
             <a href="{{ route('reports.index') }}" class="btn">🔙 НАЗАД</a>
+
+            @if($report->user_id === auth()->id() || auth()->user()->canDo('reports.delete'))
+                <form method="POST" action="{{ route('reports.destroy', $report) }}" style="display: inline; margin-left: 10px;">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Удалить репорт?')">🗑 УДАЛИТЬ</button>
+                </form>
+            @endif
         </div>
     </div>
 

@@ -18,41 +18,37 @@ class RoleController extends Controller
     public function updateRole(Request $request, User $user)
     {
         if (!auth()->user()->isSuperAdmin()) {
-            abort(403, 'Только супер-админ может изменять роли');
+            abort(403);
         }
-
         if ($user->id === auth()->id()) {
-            return redirect()->back()->with('error', '❌ Вы не можете изменить свою собственную роль');
+            return back()->with('error', 'Нельзя изменить свою роль');
         }
 
-        $request->validate([
-            'role' => 'required|in:user,moderator,admin,super_admin'
-        ]);
+        $request->validate(['role' => 'required|in:user,moderator,admin,super_admin']);
 
         if ($request->role === 'super_admin') {
-            $existingSuperAdmin = User::where('role', 'super_admin')->first();
-            if ($existingSuperAdmin && $existingSuperAdmin->id !== $user->id) {
-                return redirect()->back()->with('error', '❌ Нельзя создать второго супер-админа. Супер-админ уже существует: ' . $existingSuperAdmin->name);
+            $existing = User::where('role', 'super_admin')->first();
+            if ($existing && $existing->id !== $user->id) {
+                return back()->with('error', 'Супер-админ уже существует');
             }
         }
 
         $user->role = $request->role;
         $user->save();
 
-        return redirect()->back()->with('success', "✅ Роль пользователя {$user->name} изменена на {$request->role}");
+        return back()->with('success', "Роль {$user->name} изменена");
     }
 
     public function updatePermissions(Request $request, User $user)
     {
         if (!auth()->user()->isSuperAdmin()) {
-            abort(403, 'Только супер-админ может изменять права');
+            abort(403);
         }
-
         if ($user->id === auth()->id()) {
-            return redirect()->back()->with('error', '❌ Вы не можете изменять свои собственные права');
+            return back()->with('error', 'Нельзя менять свои права');
         }
 
-        // Все возможные права (список должен совпадать с чекбоксами в представлении)
+        // Список всех прав, которые могут быть изменены
         $allPermissions = [
             'reports.view_all',
             'reports.comment_all',
@@ -67,16 +63,16 @@ class RoleController extends Controller
             'servers.manage',
         ];
 
-        $submittedPermissions = $request->input('permissions', []);
+        $submitted = $request->input('permissions', []);
 
         foreach ($allPermissions as $perm) {
-            $value = isset($submittedPermissions[$perm]) ? true : false;
+            $value = isset($submitted[$perm]) ? 1 : 0;
             UserPermission::updateOrCreate(
                 ['user_id' => $user->id, 'permission' => $perm],
                 ['value' => $value]
             );
         }
 
-        return redirect()->back()->with('success', "✅ Права пользователя {$user->name} обновлены");
+        return back()->with('success', "Права {$user->name} обновлены");
     }
 }

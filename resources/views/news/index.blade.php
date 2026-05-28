@@ -26,7 +26,7 @@
                         <p><small>👤 Автор: {{ $item->user->name ?? 'Неизвестен' }}</small></p>
 
                         @auth
-                            @if(auth()->user()->isAdmin())
+                            @if(auth()->user()->canDo('news.delete'))
                                 <div style="margin-top: 10px;">
                                     @if($item->status == 'pending')
                                         <span style="color: #ff9800;">⏳ На модерации</span>

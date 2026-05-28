@@ -17,6 +17,9 @@ class ReportsController extends Controller
 
     public function update(Request $request, $id)
     {
+        if (!auth()->user()->canDo('reports.change_status')) {
+            abort(403);
+        }
         $report = Report::findOrFail($id);
         $report->status = $request->status;
         $report->save();
@@ -25,16 +28,21 @@ class ReportsController extends Controller
 
     public function destroy($id)
     {
+        if (!auth()->user()->canDo('reports.delete')) {
+            abort(403);
+        }
         $report = Report::findOrFail($id);
         $report->delete();
         return redirect()->back()->with('success', 'Репорт удалён');
     }
 
-    // Новый метод для закрытия репорта с итогом
     public function closeWithResolution(Request $request, $id)
     {
-        $report = Report::findOrFail($id);
+        if (!auth()->user()->canDo('reports.change_status')) {
+            abort(403);
+        }
 
+        $report = Report::findOrFail($id);
         $request->validate([
             'resolution' => 'required|string|min:5|max:1000',
         ]);
@@ -42,7 +50,6 @@ class ReportsController extends Controller
         $report->status = 'closed';
         $report->save();
 
-        // Добавляем комментарий с решением
         ReportComment::create([
             'report_id' => $report->id,
             'user_id' => auth()->id(),
