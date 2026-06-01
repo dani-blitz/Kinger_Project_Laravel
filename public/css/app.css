@@ -302,26 +302,81 @@ tr:hover td {
     .header h1 {
         font-size: 28px;
     }
-    
+
     .header-logo {
         height: 50px;
     }
-    
+
     .nav-buttons {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .btn-nav {
         width: 100%;
         text-align: center;
     }
-    
+
     table, th, td {
         font-size: 12px;
     }
-    
+
     th, td {
         padding: 8px;
     }
+}
+
+/* Панель модератора – читаемый текст */
+body.moderator-panel {
+    background: linear-gradient(135deg, #1a2a1a 0%, #0a1a0a 100%);
+    color: #e0e0e0;
+}
+
+body.moderator-panel .card {
+    background: rgba(10, 20, 10, 0.95);
+    color: #f0f0f0;
+}
+
+body.moderator-panel .card-header {
+    background: #2e7d32;
+    color: white;
+}
+
+body.moderator-panel .stat-card {
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 16px;
+    padding: 15px;
+}
+
+body.moderator-panel .stat-number {
+    color: #ffffff !important;
+    font-size: 42px;
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+body.moderator-panel .stat-label {
+    color: #ffffff !important;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+body.moderator-panel table,
+body.moderator-panel th,
+body.moderator-panel td {
+    color: #e0e0e0;
+}
+
+body.moderator-panel th {
+    background: #1b5e20;
+    color: white;
+}
+
+body.moderator-panel .btn {
+    color: white;
+}
+
+body.moderator-panel .alert-danger,
+body.moderator-panel .alert-success {
+    color: white;
 }

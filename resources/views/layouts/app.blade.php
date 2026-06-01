@@ -29,6 +29,7 @@
             @endif
             @if(auth()->user()->isModerator() && !auth()->user()->isAdmin())
                 <a href="{{ route('moderator.dashboard') }}" class="btn-nav" style="border-color: #2196F3;">🛡️ ПАНЕЛЬ МОДЕРАТОРА</a>
+                <a href="{{ route('moderator.banned-words.index') }}" class="btn-nav" style="border-color: #2196F3;">🚫 БАН-ЛИСТ</a>
             @endif
             <form method="POST" action="{{ route('logout') }}" class="logout-form">
                 @csrf

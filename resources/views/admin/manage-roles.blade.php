@@ -9,7 +9,7 @@
         </div>
         <div class="card-body">
             @if(session('error'))
-                <div class="alert-danger">❌ {{ session('error') }}</div>
+                <div class="alert-danger" style="margin-bottom: 20px;">❌ {{ session('error') }}</div>
             @endif
 
             <div class="table-responsive">
@@ -65,9 +65,18 @@
                             <td colspan="5">
                                 <div style="background: rgba(0,0,0,0.2); padding:15px; border-radius:10px; margin:10px 0;">
                                     <strong>✏️ Дополнительные права для {{ $user->name }}</strong>
+
+                                    <!-- Кнопки быстрой настройки -->
+                                    <div style="margin: 10px 0 15px;">
+                                        <span style="color:#ccc;">⚡ Быстрая настройка:</span>
+                                        <button type="button" class="btn btn-sm" style="background:#2196F3; margin-left:10px;" onclick="setPermissionsByRole({{ $user->id }}, 'user')">👤 Как пользователь</button>
+                                        <button type="button" class="btn btn-sm" style="background:#2196F3;" onclick="setPermissionsByRole({{ $user->id }}, 'moderator')">🛡️ Как модератор</button>
+                                        <button type="button" class="btn btn-sm" style="background:#2196F3;" onclick="setPermissionsByRole({{ $user->id }}, 'admin')">👑 Как администратор</button>
+                                    </div>
+
                                     <form method="POST" action="{{ route('admin.users.update-permissions', $user) }}" id="form-{{ $user->id }}">
                                         @csrf
-                                        <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px;">
+                                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 15px;">
                                             @php
                                                 $perms = [
                                                     'reports.view_all' => '👁️ Просмотр всех репортов',
@@ -88,9 +97,9 @@
                                                     $extra = $user->extraPermissions()->where('permission', $key)->first();
                                                     $checked = $extra && $extra->value == 1;
                                                 @endphp
-                                                <label style="min-width:200px; cursor:pointer;">
-                                                    <input type="checkbox" name="permissions[{{ $key }}]" value="1" {{ $checked ? 'checked' : '' }}>
-                                                    {{ $label }}
+                                                <label style="cursor: pointer; padding: 6px; background: rgba(0,20,0,0.4); border-radius: 12px; border-left: 3px solid #0f0; display: flex; align-items: center; gap: 8px;">
+                                                    <input type="checkbox" name="permissions[{{ $key }}]" value="1" {{ $checked ? 'checked' : '' }} style="width: 18px; height: 18px;">
+                                                    <span>{{ $label }}</span>
                                                 </label>
                                             @endforeach
                                         </div>
@@ -111,8 +120,42 @@
     </div>
 
     <script>
+        // Стандартные права для каждой роли
+        const rolePermissions = {
+            user: ['reports.view_own', 'news.suggest'],
+            moderator: ['reports.view_all', 'reports.comment_all', 'reports.change_status', 'news.suggest', 'news.view'],
+            admin: ['reports.view_all', 'reports.comment_all', 'reports.change_status', 'reports.delete',
+                'news.create', 'news.publish_direct', 'news.moderate', 'news.delete',
+                'users.view', 'users.edit', 'servers.view']
+        };
+
+        function setPermissionsByRole(userId, role) {
+            // Снимаем все галочки
+            const checkboxes = document.querySelectorAll('#form-' + userId + ' input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                cb.checked = false;
+            });
+
+            // Ставим галочки в соответствии с ролью
+            const perms = rolePermissions[role] || [];
+            perms.forEach(perm => {
+                const checkbox = document.querySelector(`#form-${userId} input[data-perm="${perm}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+            });
+
+            // Визуальный фидбек
+            const btn = document.querySelector(`#form-${userId} button[type="submit"]`);
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⭐ ПРИМЕНИТЬ ПРЕДУСТАНОВЛЕННЫЕ ПРАВА';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+            }, 2000);
+        }
+
         function togglePermissions(userId) {
-            var row = document.getElementById('permissions-row-' + userId);
+            const row = document.getElementById('permissions-row-' + userId);
             if (row.style.display === 'none' || row.style.display === '') {
                 row.style.display = 'table-row';
             } else {

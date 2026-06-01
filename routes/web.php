@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BannedWordsController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\HomeController;
@@ -75,6 +76,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Статистика репортов
     Route::get('/reports-stats', [App\Http\Controllers\Admin\StatsController::class, 'reportsStats'])->name('reports-stats');
 
+    Route::resource('banned-words', BannedWordsController::class)->except(['show', 'edit', 'update']);
+// или отдельно:
+    Route::get('/banned-words', [BannedWordsController::class, 'index'])->name('banned-words.index');
+    Route::post('/banned-words', [BannedWordsController::class, 'store'])->name('banned-words.store');
+    Route::delete('/banned-words/{id}', [BannedWordsController::class, 'destroy'])->name('banned-words.destroy');
+
     // Статистика ошибок
     Route::get('/errors-stats', [App\Http\Controllers\Admin\StatsController::class, 'errorsStats'])->name('errors-stats');
 
@@ -112,4 +119,10 @@ Route::get('/test-queue', function () {
 // ========== ПАНЕЛЬ МОДЕРАТОРА ==========
 Route::middleware(['auth', 'moderator'])->prefix('moderator')->name('moderator.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Moderator\DashboardController::class, 'index'])->name('dashboard');
+
+    // Сюда добавьте эти три строки:
+    Route::get('/banned-words', [App\Http\Controllers\Moderator\BannedWordsController::class, 'index'])->name('banned-words.index');
+    Route::post('/banned-words', [App\Http\Controllers\Moderator\BannedWordsController::class, 'store'])->name('banned-words.store');
+    Route::delete('/banned-words/{id}', [App\Http\Controllers\Moderator\BannedWordsController::class, 'destroy'])->name('banned-words.destroy');
 });
+

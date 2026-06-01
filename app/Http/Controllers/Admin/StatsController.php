@@ -4,14 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Report;
-use App\Models\FailedEmailError;
-use App\Models\FailedCodeError;
-use App\Models\User;
+use App\Models\BannedWord;
 use Illuminate\Support\Facades\DB;
 
 class StatsController extends Controller
 {
-    // Статистика репортов
     public function reportsStats()
     {
         $totalReports = Report::count();
@@ -50,7 +47,28 @@ class StatsController extends Controller
             ->selectRaw('AVG(TIMESTAMPDIFF(HOUR, created_at, updated_at)) as avg_hours')
             ->value('avg_hours') ?? 0;
 
-        $topWords = $this->getTopWords();
+        // ========== ПОПУЛЯРНЫЕ СЛОВА (динамический бан-лист) ==========
+        $allReports = Report::all();
+        $wordCount = [];
+
+        $stopWords = BannedWord::getStopWordsArray();
+        if (empty($stopWords)) {
+            $stopWords = ['и', 'в', 'на', 'с', 'по', 'к', 'у', 'о', 'за', 'из', 'от', 'до', 'а', 'но', 'или', 'the', 'and', 'of', 'to', 'in', 'for', 'on', 'with', 'by', 'at'];
+        }
+
+        foreach ($allReports as $report) {
+            $text = mb_strtolower($report->title . ' ' . $report->description);
+            $text = preg_replace('/[^\p{L}\p{M}\s]/u', ' ', $text);
+            $words = preg_split('/\s+/', $text, -1, PREG_SPLIT_NO_EMPTY);
+            foreach ($words as $word) {
+                if (mb_strlen($word) < 3) continue;
+                if (in_array($word, $stopWords)) continue;
+                $wordCount[$word] = ($wordCount[$word] ?? 0) + 1;
+            }
+        }
+
+        arsort($wordCount);
+        $topWords = array_slice($wordCount, 0, 15, true);
 
         return view('admin.stats-reports', compact(
             'totalReports', 'openReports', 'inProgressReports', 'closedReports',
@@ -58,23 +76,23 @@ class StatsController extends Controller
         ));
     }
 
-    // Статистика ошибок
+    // Статистика ошибок (оставьте ваш существующий код)
     public function errorsStats()
     {
-        $totalEmailErrors = FailedEmailError::count();
-        $totalCodeErrors = FailedCodeError::count();
+        $totalEmailErrors = \App\Models\FailedEmailError::count();
+        $totalCodeErrors = \App\Models\FailedCodeError::count();
         $totalFailedLogs = $totalEmailErrors + $totalCodeErrors;
 
-        $totalUsers = User::count();
+        $totalUsers = \App\Models\User::count();
         $totalAttempts = $totalUsers + $totalFailedLogs;
         $errorRate = $totalAttempts > 0 ? round(($totalFailedLogs / $totalAttempts) * 100, 1) : 0;
 
         // Ошибки почты
-        $smtpErrors = FailedEmailError::where('error_type', 'smtp')->count();
-        $connectionErrors = FailedEmailError::where('error_type', 'connection')->count();
-        $authErrors = FailedEmailError::where('error_type', 'auth')->count();
-        $timeoutErrors = FailedEmailError::where('error_type', 'timeout')->count();
-        $otherEmailErrors = FailedEmailError::where('error_type', 'unknown')->count();
+        $smtpErrors = \App\Models\FailedEmailError::where('error_type', 'smtp')->count();
+        $connectionErrors = \App\Models\FailedEmailError::where('error_type', 'connection')->count();
+        $authErrors = \App\Models\FailedEmailError::where('error_type', 'auth')->count();
+        $timeoutErrors = \App\Models\FailedEmailError::where('error_type', 'timeout')->count();
+        $otherEmailErrors = \App\Models\FailedEmailError::where('error_type', 'unknown')->count();
 
         $totalEmailErrorsCount = $totalEmailErrors;
         $smtpPercent = $totalEmailErrorsCount > 0 ? round(($smtpErrors / $totalEmailErrorsCount) * 100, 1) : 0;
@@ -84,10 +102,10 @@ class StatsController extends Controller
         $otherEmailPercent = $totalEmailErrorsCount > 0 ? round(($otherEmailErrors / $totalEmailErrorsCount) * 100, 1) : 0;
 
         // Ошибки кода
-        $invalidCodeErrors = FailedCodeError::where('error_type', 'invalid')->count();
-        $expiredCodeErrors = FailedCodeError::where('error_type', 'expired')->count();
-        $wrongEmailErrors = FailedCodeError::where('error_type', 'wrong_email')->count();
-        $formatCodeErrors = FailedCodeError::where('error_type', 'format')->count();
+        $invalidCodeErrors = \App\Models\FailedCodeError::where('error_type', 'invalid')->count();
+        $expiredCodeErrors = \App\Models\FailedCodeError::where('error_type', 'expired')->count();
+        $wrongEmailErrors = \App\Models\FailedCodeError::where('error_type', 'wrong_email')->count();
+        $formatCodeErrors = \App\Models\FailedCodeError::where('error_type', 'format')->count();
 
         $totalCodeErrorsCount = $totalCodeErrors;
         $invalidCodePercent = $totalCodeErrorsCount > 0 ? round(($invalidCodeErrors / $totalCodeErrorsCount) * 100, 1) : 0;
@@ -102,33 +120,5 @@ class StatsController extends Controller
             'invalidCodeErrors', 'expiredCodeErrors', 'wrongEmailErrors', 'formatCodeErrors',
             'invalidCodePercent', 'expiredCodePercent', 'wrongEmailPercent', 'formatCodePercent'
         ));
-    }
-
-    private function getTopWords()
-    {
-        $allReports = Report::all();
-        $wordCount = [];
-        $stopWords = [
-            'и', 'в', 'на', 'с', 'по', 'к', 'у', 'о', 'за', 'из', 'от', 'до',
-            'а', 'но', 'или', 'так', 'же', 'бы', 'это', 'что', 'как', 'для',
-            'the', 'and', 'of', 'to', 'in', 'for', 'on', 'with', 'by', 'at',
-            'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has',
-            'had', 'having', 'do', 'does', 'did', 'doing', 'but', 'or', 'so',
-            'if', 'then', 'else', 'when', 'where', 'which', 'while', 'who',
-            'whom', 'this', 'that', 'these', 'those', 'some', 'any', 'no',
-            'very', 'just', 'not', 'only', 'really', 'player', 'игрок'
-        ];
-        foreach ($allReports as $report) {
-            $text = strtolower($report->title . ' ' . $report->description);
-            $text = preg_replace('/[^\p{L}\p{N}\s]/u', ' ', $text);
-            $words = preg_split('/\s+/', $text, -1, PREG_SPLIT_NO_EMPTY);
-            foreach ($words as $word) {
-                if (mb_strlen($word) < 3) continue;
-                if (in_array($word, $stopWords)) continue;
-                $wordCount[$word] = ($wordCount[$word] ?? 0) + 1;
-            }
-        }
-        arsort($wordCount);
-        return array_slice($wordCount, 0, 15, true);
     }
 }

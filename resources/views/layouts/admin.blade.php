@@ -37,6 +37,12 @@
             </a>
         @endif
 
+        @if(auth()->user()->canDo('manage_banned_words') ?? auth()->user()->isSuperAdmin())
+            <a href="{{ route('admin.banned-words.index') }}" class="{{ request()->routeIs('admin.banned-words.*') ? 'active' : '' }}">
+                🚫 БАН-ЛИСТ
+            </a>
+        @endif
+
         <a href="{{ route('admin.failed-logs') }}" class="{{ request()->routeIs('admin.failed-logs') ? 'active' : '' }}">
             📋 ЛОГИ ОШИБОК
         </a>

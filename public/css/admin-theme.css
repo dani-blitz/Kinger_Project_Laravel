@@ -1,4 +1,10 @@
-/* ADMIN THEME - Military Green - Улучшенная читаемость */
+/* =============================================
+   ADMIN THEME - CYBERPUNK / DARK MATRIX
+   ============================================= */
+
+/* Импорт шрифта с моноширинным оттенком */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -6,14 +12,41 @@
 }
 
 body.admin-theme {
-    background: linear-gradient(135deg, #0a1a0f 0%, #0d2618 100%);
-    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at 20% 30%, #0a0f0a, #030603);
+    font-family: 'Inter', 'JetBrains Mono', monospace;
     min-height: 100vh;
+    color: #c0ffc0;
+    position: relative;
 }
 
+/* Сетка (глитч-эффект на фон) */
+body.admin-theme::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: repeating-linear-gradient(0deg, rgba(0,255,0,0.03) 1px, transparent 2px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Контейнер */
+.container {
+    max-width: 1400px;
+    margin: 30px auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Шапка (админ) */
 .admin-header {
-    background: rgba(10, 20, 15, 0.95);
-    border-bottom: 2px solid #4CAF50;
+    background: rgba(0, 10, 0, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 2px solid #0f0;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
     padding: 15px 30px;
     display: flex;
     justify-content: space-between;
@@ -23,7 +56,6 @@ body.admin-theme {
     position: sticky;
     top: 0;
     z-index: 100;
-    backdrop-filter: blur(10px);
 }
 
 .admin-nav {
@@ -33,89 +65,101 @@ body.admin-theme {
 }
 
 .admin-nav a {
-    color: #e8f5e9;
+    color: #9eff9e;
     text-decoration: none;
-    padding: 8px 16px;
-    border-radius: 8px;
+    padding: 8px 18px;
+    border-radius: 30px;
     font-weight: 500;
-    transition: all 0.3s;
-    background: rgba(0,0,0,0.3);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+    background: rgba(0, 20, 0, 0.6);
+    border: 1px solid #2a6b2a;
 }
 
 .admin-nav a:hover {
-    background: #2e7d32;
-    color: #ffffff;
+    background: #0f0;
+    color: #000;
+    border-color: #0f0;
+    box-shadow: 0 0 10px #0f0;
+    text-shadow: none;
 }
 
 .admin-nav a.active {
-    background: #2e7d32;
-    color: #ffffff;
+    background: #0f0;
+    color: #000;
+    border-color: #0f0;
+    box-shadow: 0 0 8px #0f0;
 }
 
+/* Правая часть шапки */
 .admin-user {
     display: flex;
     align-items: center;
     gap: 15px;
+    background: rgba(0, 20, 0, 0.7);
+    padding: 5px 15px;
+    border-radius: 40px;
+    border: 1px solid #0f0;
 }
 
 .admin-user span {
-    color: #e8f5e9;
-    font-weight: 500;
+    color: #0f0;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
 }
 
 .logout-btn {
-    background: rgba(211, 47, 47, 0.5);
+    background: none;
     border: none;
-    color: #ffcdd2;
+    color: #f66;
     cursor: pointer;
-    padding: 8px 16px;
-    border-radius: 8px;
+    padding: 6px 14px;
+    border-radius: 30px;
     font-weight: 500;
-    transition: all 0.3s;
+    transition: all 0.2s;
+    border: 1px solid #f66;
 }
 
 .logout-btn:hover {
-    background: #d32f2f;
-    color: #ffffff;
+    background: #f66;
+    color: #000;
+    box-shadow: 0 0 8px #f66;
 }
 
-.container {
-    max-width: 1400px;
-    margin: 30px auto;
-    padding: 0 20px;
-}
-
+/* Карточки */
 .card {
-    background: rgba(20, 35, 25, 0.95);
+    background: rgba(8, 18, 8, 0.7);
     backdrop-filter: blur(10px);
-    border: 1px solid #2e7d32;
-    border-radius: 20px;
+    border: 1px solid #2a6b2a;
+    border-radius: 24px;
     margin-bottom: 24px;
     overflow: hidden;
     transition: all 0.3s;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
 }
 
 .card:hover {
-    border-color: #4CAF50;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    border-color: #0f0;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+    transform: translateY(-2px);
 }
 
 .card-header {
-    background: linear-gradient(135deg, #1b5e20, #2e7d32);
-    color: #ffffff;
-    padding: 16px 20px;
-    font-size: 18px;
+    background: linear-gradient(90deg, #0a1f0a, #031003);
+    color: #0f0;
+    padding: 16px 24px;
+    font-size: 1.2rem;
     font-weight: 600;
-    border-bottom: 1px solid #4CAF50;
+    font-family: 'JetBrains Mono', monospace;
+    border-bottom: 1px solid #2a6b2a;
+    letter-spacing: 1px;
+    text-shadow: 0 0 3px #0f0;
 }
 
 .card-body {
-    padding: 20px;
-    color: #e0e0e0;
-}
-
-.card-body p, .card-body li {
-    color: #d4d4d4;
+    padding: 24px;
+    color: #c0ffc0;
 }
 
 /* Статистика */
@@ -127,12 +171,17 @@ body.admin-theme {
 .stat-number {
     font-size: 48px;
     font-weight: 700;
-    color: #4CAF50;
+    color: #0f0;
+    text-shadow: 0 0 8px #0f0;
+    font-family: 'JetBrains Mono', monospace;
 }
 
 .stat-label {
-    color: #e8f5e9;
+    color: #9eff9e;
     margin-top: 8px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 /* Таблицы */
@@ -143,71 +192,77 @@ table {
 
 th {
     text-align: left;
-    padding: 12px;
-    background: #1b5e20;
-    color: #ffffff;
+    padding: 14px;
+    background: rgba(0, 20, 0, 0.8);
+    color: #0f0;
     font-weight: 600;
-    border-bottom: 2px solid #4CAF50;
+    border-bottom: 1px solid #0f0;
+    font-family: 'JetBrains Mono', monospace;
 }
 
 td {
     padding: 12px;
-    border-bottom: 1px solid #2e7d32;
-    color: #e0e0e0;
+    border-bottom: 1px solid #1a3a1a;
+    color: #c0ffc0;
 }
 
 tr:hover td {
-    background: rgba(46, 125, 50, 0.2);
+    background: rgba(0, 255, 0, 0.08);
 }
 
 /* Кнопки */
 .btn {
     display: inline-block;
     padding: 10px 20px;
-    background: linear-gradient(135deg, #2e7d32, #1b5e20);
-    color: #ffffff;
-    text-decoration: none;
-    border: none;
-    border-radius: 8px;
+    background: #0a1a0a;
+    color: #0f0;
+    border: 1px solid #0f0;
+    border-radius: 40px;
     cursor: pointer;
-    transition: all 0.3s;
-    font-weight: 500;
-    font-size: 14px;
+    transition: all 0.2s;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px;
 }
 
 .btn:hover {
-    background: linear-gradient(135deg, #1b5e20, #2e7d32);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.5);
+    background: #0f0;
+    color: #000;
+    box-shadow: 0 0 12px #0f0;
+    transform: scale(1.02);
 }
 
 .btn-danger {
-    background: linear-gradient(135deg, #c62828, #b71c1c);
+    border-color: #f44;
+    color: #f88;
 }
 
 .btn-danger:hover {
-    background: linear-gradient(135deg, #b71c1c, #c62828);
+    background: #f44;
+    color: #000;
+    box-shadow: 0 0 12px #f44;
 }
 
 /* Формы */
 input, textarea, select {
     width: 100%;
-    padding: 10px;
-    background: #0d1f12;
-    border: 1px solid #2e7d32;
-    border-radius: 8px;
-    color: #e8f5e9;
-    font-size: 14px;
+    padding: 10px 14px;
+    background: #051005;
+    border: 1px solid #2a6b2a;
+    border-radius: 12px;
+    color: #0f0;
+    font-family: 'JetBrains Mono', monospace;
+    transition: all 0.2s;
 }
 
 input:focus, textarea:focus, select:focus {
     outline: none;
-    border-color: #4CAF50;
-    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+    border-color: #0f0;
+    box-shadow: 0 0 10px #0f0;
 }
 
 label {
-    color: #e8f5e9;
+    color: #9eff9e;
     font-weight: 500;
     margin-bottom: 8px;
     display: block;
@@ -215,21 +270,21 @@ label {
 
 /* Уведомления */
 .alert-success {
-    background: rgba(76, 175, 80, 0.2);
-    color: #c8e6c9;
-    padding: 12px 16px;
-    border-radius: 10px;
+    background: rgba(0, 255, 0, 0.15);
+    color: #0f0;
+    padding: 12px 18px;
+    border-radius: 14px;
     margin-bottom: 20px;
-    border-left: 4px solid #4CAF50;
+    border-left: 4px solid #0f0;
 }
 
 .alert-danger {
-    background: rgba(211, 47, 47, 0.2);
-    color: #ffcdd2;
-    padding: 12px 16px;
-    border-radius: 10px;
+    background: rgba(255, 0, 0, 0.15);
+    color: #f88;
+    padding: 12px 18px;
+    border-radius: 14px;
     margin-bottom: 20px;
-    border-left: 4px solid #f44336;
+    border-left: 4px solid #f44;
 }
 
 /* Пагинация */
@@ -243,63 +298,24 @@ label {
 
 .pagination a, .pagination span {
     display: inline-block;
-    padding: 8px 12px;
-    background: #1b5e20;
-    border: 1px solid #2e7d32;
-    border-radius: 6px;
-    color: #e8f5e9;
+    padding: 8px 14px;
+    background: #0a1a0a;
+    border: 1px solid #2a6b2a;
+    border-radius: 30px;
+    color: #0f0;
     text-decoration: none;
-    transition: all 0.3s;
+    font-family: monospace;
 }
 
 .pagination a:hover {
-    background: #2e7d32;
-    color: #ffffff;
+    background: #0f0;
+    color: #000;
+    border-color: #0f0;
 }
 
 .pagination .active span {
-    background: #4CAF50;
-    color: #ffffff;
-}
-
-/* Ошибки кода */
-.error-message {
-    max-width: 400px;
-    cursor: pointer;
-}
-
-.error-message .short {
-    display: block;
-    color: #ffcdd2;
-}
-
-.error-message .full {
-    display: none;
-    background: #0d1f12;
-    padding: 10px;
-    border-radius: 8px;
-    margin-top: 8px;
-    font-size: 12px;
-    color: #ffcdd2;
-}
-
-.error-message.expanded .short {
-    display: none;
-}
-
-.error-message.expanded .full {
-    display: block;
-}
-
-.toggle-btn {
-    background: #2e7d32;
-    color: white;
-    border: none;
-    padding: 3px 8px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 11px;
-    margin-left: 10px;
+    background: #0f0;
+    color: #000;
 }
 
 /* Адаптив */
@@ -311,37 +327,23 @@ label {
     .admin-nav {
         justify-content: center;
     }
+    .stat-number {
+        font-size: 32px;
+    }
     table, th, td {
         font-size: 12px;
         padding: 8px;
     }
-    .stat-number {
-        font-size: 32px;
-    }
 }
 
-/* Скроллбар */
+/* Кастомный скролл */
 ::-webkit-scrollbar {
     width: 8px;
 }
 ::-webkit-scrollbar-track {
-    background: #0a1a0f;
+    background: #031003;
 }
 ::-webkit-scrollbar-thumb {
-    background: #2e7d32;
+    background: #0f0;
     border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: #4CAF50;
-}
-
-/* Сортировка в таблицах */
-th a {
-    color: #e8f5e9;
-    text-decoration: none;
-    transition: all 0.2s;
-}
-
-th a:hover {
-    color: #4CAF50;
 }

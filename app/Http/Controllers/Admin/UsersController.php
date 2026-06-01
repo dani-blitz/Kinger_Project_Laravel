@@ -12,6 +12,11 @@ class UsersController extends Controller
     {
         $query = User::query();
 
+        // Фильтр по роли
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
         // Поиск по Steam ID
         if ($request->filled('steam_id')) {
             $query->where('steam_id', 'like', '%' . $request->steam_id . '%');
@@ -30,7 +35,6 @@ class UsersController extends Controller
         // Сортировка
         $sortField = $request->get('sort', 'id');
         $sortDirection = $request->get('direction', 'desc');
-
         $allowedSorts = ['id', 'name', 'email', 'created_at', 'role'];
         if (in_array($sortField, $allowedSorts)) {
             $query->orderBy($sortField, $sortDirection);

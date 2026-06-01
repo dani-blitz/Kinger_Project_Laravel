@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Moderator;
 
 use App\Http\Controllers\Controller;
 use App\Models\Report;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -33,8 +32,7 @@ class DashboardController extends Controller
         $reportsByDay30 = [];
         for ($i = 29; $i >= 0; $i--) {
             $date = now()->subDays($i)->format('Y-m-d');
-            $count = Report::whereDate('created_at', $date)->count();
-            $reportsByDay30[$date] = $count;
+            $reportsByDay30[$date] = Report::whereDate('created_at', $date)->count();
         }
 
         $reports = Report::orderBy('id', 'desc')->paginate(20);

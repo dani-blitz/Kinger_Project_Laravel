@@ -11,20 +11,30 @@
             @endif
         </div>
         <div class="card-body">
-            <!-- Форма поиска -->
+            <!-- Форма поиска и фильтрации -->
             <form method="GET" action="{{ route('admin.users') }}" style="margin-bottom: 20px;">
                 <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
                     <div style="flex: 1; min-width: 180px;">
                         <label style="font-size: 12px;">👤 Имя</label>
-                        <input type="text" name="name" value="{{ request('name') }}" placeholder="Поиск по имени..." style="width: 100%;">
+                        <input type="text" name="name" value="{{ request('name') }}" placeholder="Поиск по имени...">
                     </div>
                     <div style="flex: 1; min-width: 180px;">
                         <label style="font-size: 12px;">📧 Email</label>
-                        <input type="text" name="email" value="{{ request('email') }}" placeholder="Поиск по email..." style="width: 100%;">
+                        <input type="text" name="email" value="{{ request('email') }}" placeholder="Поиск по email...">
                     </div>
                     <div style="flex: 1; min-width: 180px;">
                         <label style="font-size: 12px;">🎮 Steam ID</label>
-                        <input type="text" name="steam_id" value="{{ request('steam_id') }}" placeholder="Поиск по Steam ID..." style="width: 100%;">
+                        <input type="text" name="steam_id" value="{{ request('steam_id') }}" placeholder="Поиск по Steam ID...">
+                    </div>
+                    <div style="flex: 1; min-width: 150px;">
+                        <label style="font-size: 12px;">👑 Роль</label>
+                        <select name="role" onchange="this.form.submit()" style="width: 100%; background: #2e7d32; color: white; padding: 10px; border-radius: 5px;">
+                            <option value="">Все роли</option>
+                            <option value="user" {{ request('role') == 'user' ? 'selected' : '' }}>👤 Пользователь</option>
+                            <option value="moderator" {{ request('role') == 'moderator' ? 'selected' : '' }}>🛡️ Модератор</option>
+                            <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>👑 Администратор</option>
+                            <option value="super_admin" {{ request('role') == 'super_admin' ? 'selected' : '' }}>⭐ Супер-админ</option>
+                        </select>
                     </div>
                     <div>
                         <button type="submit" class="btn" style="background: #2196F3;">🔍 ИСКАТЬ</button>
@@ -33,7 +43,7 @@
                 </div>
             </form>
 
-            @if(request()->anyFilled(['name', 'email', 'steam_id']))
+            @if(request()->anyFilled(['name', 'email', 'steam_id', 'role']))
                 <div style="margin-bottom: 15px; padding: 10px; background: rgba(33, 150, 243, 0.2); border-radius: 8px;">
                     🔍 Найдено: <strong>{{ $users->total() }}</strong> пользователей
                 </div>
@@ -46,42 +56,32 @@
                         <th style="padding: 12px; text-align: left; color: #e8f5e9;">
                             <a href="{{ route('admin.users', array_merge(request()->query(), ['sort' => 'id', 'direction' => ($sortField == 'id' && $sortDirection == 'desc') ? 'asc' : 'desc'])) }}" style="color: #e8f5e9; text-decoration: none;">
                                 ID
-                                @if($sortField == 'id')
-                                    {!! $sortDirection == 'desc' ? '▼' : '▲' !!}
-                                @endif
+                                @if($sortField == 'id') {!! $sortDirection == 'desc' ? '▼' : '▲' !!} @endif
                             </a>
                         </th>
                         <th style="padding: 12px; text-align: left; color: #e8f5e9;">
                             <a href="{{ route('admin.users', array_merge(request()->query(), ['sort' => 'name', 'direction' => ($sortField == 'name' && $sortDirection == 'desc') ? 'asc' : 'desc'])) }}" style="color: #e8f5e9; text-decoration: none;">
                                 Имя
-                                @if($sortField == 'name')
-                                    {!! $sortDirection == 'desc' ? '▼' : '▲' !!}
-                                @endif
+                                @if($sortField == 'name') {!! $sortDirection == 'desc' ? '▼' : '▲' !!} @endif
                             </a>
                         </th>
                         <th style="padding: 12px; text-align: left; color: #e8f5e9;">
                             <a href="{{ route('admin.users', array_merge(request()->query(), ['sort' => 'email', 'direction' => ($sortField == 'email' && $sortDirection == 'desc') ? 'asc' : 'desc'])) }}" style="color: #e8f5e9; text-decoration: none;">
                                 Email
-                                @if($sortField == 'email')
-                                    {!! $sortDirection == 'desc' ? '▼' : '▲' !!}
-                                @endif
+                                @if($sortField == 'email') {!! $sortDirection == 'desc' ? '▼' : '▲' !!} @endif
                             </a>
                         </th>
                         <th style="padding: 12px; text-align: left; color: #e8f5e9;">
                             <a href="{{ route('admin.users', array_merge(request()->query(), ['sort' => 'role', 'direction' => ($sortField == 'role' && $sortDirection == 'desc') ? 'asc' : 'desc'])) }}" style="color: #e8f5e9; text-decoration: none;">
                                 Роль
-                                @if($sortField == 'role')
-                                    {!! $sortDirection == 'desc' ? '▼' : '▲' !!}
-                                @endif
+                                @if($sortField == 'role') {!! $sortDirection == 'desc' ? '▼' : '▲' !!} @endif
                             </a>
                         </th>
                         <th style="padding: 12px; text-align: left; color: #e8f5e9;">Steam ID</th>
                         <th style="padding: 12px; text-align: left; color: #e8f5e9;">
                             <a href="{{ route('admin.users', array_merge(request()->query(), ['sort' => 'created_at', 'direction' => ($sortField == 'created_at' && $sortDirection == 'desc') ? 'asc' : 'desc'])) }}" style="color: #e8f5e9; text-decoration: none;">
                                 Дата регистрации
-                                @if($sortField == 'created_at')
-                                    {!! $sortDirection == 'desc' ? '▼' : '▲' !!}
-                                @endif
+                                @if($sortField == 'created_at') {!! $sortDirection == 'desc' ? '▼' : '▲' !!} @endif
                             </a>
                         </th>
                         @if(auth()->user()->canDo('users.edit'))
